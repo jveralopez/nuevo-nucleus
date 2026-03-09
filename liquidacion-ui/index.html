@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nucleus RH · Liquidación</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <header>
+          <h1>Liquidaciones</h1>
+          <button id="btn-refresh">Recargar</button>
+        </header>
+        <ul id="payroll-list" class="payroll-list"></ul>
+        <section class="card">
+          <h2>Nueva liquidación</h2>
+          <form id="form-create">
+            <label>Periodo
+              <input name="periodo" placeholder="2026-02" required />
+            </label>
+            <label>Tipo
+              <input name="tipo" placeholder="Mensual" required />
+            </label>
+            <label>Descripción
+              <input name="descripcion" placeholder="Mensualizados Casa Central" />
+            </label>
+            <button type="submit">Crear</button>
+          </form>
+        </section>
+      </aside>
+      <main>
+        <section id="payroll-detail" class="card empty">
+          <p>Seleccioná una liquidación para ver el detalle.</p>
+        </section>
+      </main>
+    </div>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
