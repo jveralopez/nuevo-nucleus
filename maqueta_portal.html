@@ -484,9 +484,9 @@
       .module-grid {
         display: grid;
         width: 100%;
-        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-auto-rows: 1fr;
         gap: 32px;
-        align-items: stretch;
       }
 
       .module-card-full {
@@ -534,11 +534,6 @@
         width: 100%;
       }
 
-      @media (max-width: 900px) {
-        .module-grid {
-          grid-template-columns: 1fr;
-        }
-      }
 
       .screen-frame {
         border-radius: 20px;
@@ -1740,93 +1735,3 @@
     </script>
   </body>
 </html>
-            <article class="module-card-full" style="border-color: rgba(126,181,255,0.4);">
-              <h4>Evaluación de Desempeño</h4>
-              <p>
-                Ciclos de performance modernos: objetivos, competencias, feedback continuo y calibraciones. Integrado a Nucleus WF y Legajos.
-              </p>
-              <div class="actions">
-                <span class="pill">Ciclos configurables</span>
-                <span class="pill">Workflow completo</span>
-                <span class="pill">Calibraciones</span>
-              </div>
-              <div class="screen-preview">
-                <div class="screen-frame">
-                  <h5>Autoval.</h5>
-                  <div class="line" style="background: rgba(126,181,255,0.6);"></div>
-                </div>
-                <div class="screen-frame">
-                  <h5>Feedback</h5>
-                  <div class="line" style="background: rgba(102,255,209,0.6);"></div>
-                </div>
-                <div class="screen-frame">
-                  <h5>Calibración</h5>
-                  <div class="line" style="background: rgba(255,159,95,0.6);"></div>
-                </div>
-              </div>
-              <ul class="checklist" style="margin-top:16px;">
-                <li>✔ Blueprint Evaluación (API + WF + UI) en `docs/modulo-evaluacion`</li>
-                <li>✔ Roadmap para integraciones y analytics</li>
-                <li>⏳ Implementar servicio y front</li>
-              </ul>
-            </article>
-            <article class="module-card-full" style="border-color: rgba(255,111,166,0.4);">
-              <h4>Medicina Laboral</h4>
-              <p>
-                Gestión integral de exámenes, licencias médicas y campañas de salud ocupacional con flujos Nucleus WF e integración con Tiempos/Liquidación.
-              </p>
-              <div class="actions">
-                <span class="pill">Exámenes &amp; aptos</span>
-                <span class="pill">Licencias médicas</span>
-                <span class="pill">Campañas</span>
-              </div>
-              <div class="screen-preview">
-                <div class="screen-frame">
-                  <h5>Agenda</h5>
-                  <div class="line" style="background: rgba(126,181,255,0.6);"></div>
-                </div>
-                <div class="screen-frame">
-                  <h5>Resultados</h5>
-                  <div class="line" style="background: rgba(102,255,209,0.6);"></div>
-                </div>
-                <div class="screen-frame">
-                  <h5>Licencias</h5>
-                  <div class="line" style="background: rgba(255,159,95,0.6);"></div>
-                </div>
-              </div>
-              <ul class="checklist" style="margin-top:16px;">
-                <li>✔ Blueprint Medicina (API + workflow + integraciones)</li>
-                <li>✔ Roadmap para seguridad y reporting</li>
-                <li>⏳ Implementar servicio/UI</li>
-              </ul>
-            </article>
-            <article class="module-card-full" style="border-color: rgba(126,181,255,0.35);">
-              <h4>Capacitaciones</h4>
-              <p>
-                Learning hub con catálogo de cursos, sesiones, inscripciones, evaluaciones y certificados integrado con Legajos y Evaluación.
-              </p>
-              <div class="actions">
-                <span class="pill">Catálogo</span>
-                <span class="pill">Inscripciones</span>
-                <span class="pill">Certificados</span>
-              </div>
-              <div class="screen-preview">
-                <div class="screen-frame">
-                  <h5>Catálogo</h5>
-                  <div class="line" style="background: rgba(126,181,255,0.6);"></div>
-                </div>
-                <div class="screen-frame">
-                  <h5>Sesiones</h5>
-                  <div class="line" style="background: rgba(102,255,209,0.6);"></div>
-                </div>
-                <div class="screen-frame">
-                  <h5>Certificados</h5>
-                  <div class="line" style="background: rgba(255,159,95,0.6);"></div>
-                </div>
-              </div>
-              <ul class="checklist" style="margin-top:16px;">
-                <li>✔ Blueprint Capacitaciones (`docs/modulo-capacitacion`)</li>
-                <li>✔ Roadmap integrando Learning Ops y Portal Empleado</li>
-                <li>⏳ Implementar servicio y UI</li>
-              </ul>
-            </article>
