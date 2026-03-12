@@ -18,12 +18,12 @@
 ## Portales
 - [x] Portal RH archivos estaticos presentes
 - [x] Portal RH carga (visual)
-- [ ] Portal RH lista empresas (401)
-- [ ] Organigrama versionado disponible (pendiente de auth)
+- [x] Portal RH lista empresas (200, sin datos)
+- [x] Organigrama versionado disponible (200, sin datos)
 - [x] Portal Empleado archivos estaticos presentes
 - [x] Portal Empleado carga (visual)
-- [ ] Portal Empleado carga recibos/demo (404 BFF)
-- [ ] Liquidacion UI carga datos (401)
+- [x] Portal Empleado carga recibos/demo (200, sin datos)
+- [x] Liquidacion UI carga datos (200, sin datos)
 
 ## BFF
 - [x] BFF responde `/health`

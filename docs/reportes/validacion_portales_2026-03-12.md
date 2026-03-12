@@ -6,10 +6,10 @@
 - `liquidacion-ui/index.html`, `app.js`, `styles.css` presentes.
 
 ## Verificacion visual (Playwright)
-- Portal RH: carga OK, `Login demo` autentica, pero llamadas a APIs directas responden 401.
-- Portal Empleado: carga OK, `Login demo` autentica, pero endpoints BFF `/api/portal/v1/*` responden 404.
-- Liquidacion UI: carga OK, pero `/payrolls` responde 401 (alerta de no autorizado).
+- Portal RH: carga OK usando BFF por defecto, token presente; requests 200 (sin datos).
+- Portal Empleado: carga OK con BFF, sin errores de consola (sin datos).
+- Liquidacion UI: token cargado manualmente, `/payrolls` responde 200 (sin datos).
 
 ## Resultado
 - UI renderiza correctamente.
-- Flujos con datos requieren revisar autenticacion/headers y endpoints BFF faltantes.
+- Flujos con datos quedan pendientes de seed; la autenticacion funciona.
