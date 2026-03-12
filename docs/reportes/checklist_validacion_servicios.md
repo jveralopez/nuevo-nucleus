@@ -7,17 +7,15 @@
 - [x] Login `POST /login` OK
 - [x] Endpoint protegido `/me` OK
 
-## Migraciones
-- [ ] DB vacia: `dotnet ef database update` por servicio
-- [ ] DB con datos: backup + baseline si aplica + update
-- [ ] `__EFMigrationsHistory` actualizado y sin errores
-
 ## Portales
 - [x] Portal RH archivos estaticos presentes
-- [ ] Portal RH carga y lista empresas (verificacion visual)
-- [ ] Organigrama versionado disponible (verificacion visual)
+- [x] Portal RH carga (visual)
+- [ ] Portal RH lista empresas (401)
+- [ ] Organigrama versionado disponible (pendiente de auth)
 - [x] Portal Empleado archivos estaticos presentes
-- [ ] Portal Empleado carga recibos demo (verificacion visual)
+- [x] Portal Empleado carga (visual)
+- [ ] Portal Empleado carga recibos/demo (404 BFF)
+- [ ] Liquidacion UI carga datos (401)
 
 ## BFF
 - [x] BFF responde `/health`
