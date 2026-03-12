@@ -1,11 +1,11 @@
 # Checklist de validacion de servicios
 
 ## Smoke test
-- [ ] `docker compose up -d` ejecutado
-- [ ] `docker compose ps` muestra servicios `healthy`
-- [ ] `/health` OK en auth, organizacion, personal, liquidacion, integration-hub, nucleuswf, portal-bff, configuracion
-- [ ] Login `POST /login` OK
-- [ ] Endpoint protegido `/me` OK
+- [x] `docker compose up -d` ejecutado
+- [x] `docker compose ps` muestra servicios `healthy`
+- [x] `/health` OK en auth, organizacion, personal, liquidacion, integration-hub, nucleuswf, portal-bff, configuracion
+- [x] Login `POST /login` OK
+- [x] Endpoint protegido `/me` OK
 
 ## Migraciones
 - [ ] DB vacia: `dotnet ef database update` por servicio
@@ -16,3 +16,9 @@
 - [ ] Portal RH carga y lista empresas
 - [ ] Organigrama versionado disponible
 - [ ] Portal Empleado carga recibos demo
+
+## BFF
+- [x] BFF responde `/health`
+- [ ] `GET /api/rh/v1/organizacion/organigramas` (404)
+- [ ] `GET /api/rh/v1/organizacion/unidades/tree` (405)
+- [ ] `POST /api/rh/v1/organizacion/organigramas` (404)
