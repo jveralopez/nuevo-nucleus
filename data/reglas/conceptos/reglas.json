@@ -1,0 +1,70 @@
+{
+  "version": "2026-S1",
+  "effective_from": "2026-01-01",
+  "effective_to": "2026-06-30",
+  "rules": [
+    {
+      "codigo": "BASICO",
+      "descripcion": "Básico",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "legajoField": "basico",
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "core"
+    },
+    {
+      "codigo": "ANTIGUEDAD",
+      "descripcion": "Antigüedad",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "legajoField": "antiguedad",
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "core"
+    },
+    {
+      "codigo": "ADICIONALES",
+      "descripcion": "Adicionales",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "legajoField": "adicionales",
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "core"
+    },
+    {
+      "codigo": "JUBILACION",
+      "descripcion": "Aportes jubilación",
+      "tipo": "Deduccion",
+      "formula": "PercentOf",
+      "base": "remunerativo",
+      "rate": 0.11,
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "core"
+    },
+    {
+      "codigo": "OBRA_SOCIAL",
+      "descripcion": "Obra social",
+      "tipo": "Deduccion",
+      "formula": "PercentOf",
+      "base": "remunerativo",
+      "rate": 0.03,
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "core"
+    },
+    {
+      "codigo": "SINDICATO",
+      "descripcion": "Sindicato",
+      "tipo": "Deduccion",
+      "formula": "PercentOf",
+      "base": "remunerativo",
+      "rate": 0.02,
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "core"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "version": "2026-S1",
+  "effective_from": "2026-01-01",
+  "effective_to": "2026-06-30",
+  "source_url": "https://www.afip.gob.ar/gananciasYBienes/ganancias/personas-humanas-sucesiones-indivisas/deducciones/documentos/Deducciones-personales-art-30-ene-a-jun-2026.pdf",
+  "source_published_at": "2026-01-10",
+  "rows": [
+    {
+      "codigo": "GAN_NO_IMPONIBLE",
+      "descripcion": "Ganancias no imponibles [Art\u00edculo 30,\ninciso a)]:",
+      "importe": 5151802.5,
+      "unidad": "ARS"
+    },
+    {
+      "codigo": "CONYUGE",
+      "descripcion": "1. C\u00f3nyuge:",
+      "importe": 4851964.66,
+      "unidad": "ARS"
+    },
+    {
+      "codigo": "HIJO",
+      "descripcion": "2. Hijo:",
+      "importe": 2446863.48,
+      "unidad": "ARS"
+    },
+    {
+      "codigo": "HIJO_DISCAPACIDAD",
+      "descripcion": "2.1. Hijo incapacitado para el trabajo",
+      "importe": 4893726.96,
+      "unidad": "ARS"
+    },
+    {
+      "codigo": "DED_ESPECIAL",
+      "descripcion": "Deducci\u00f3n Especial [Art\u00edculo 30, inciso c),\nApartado 1]",
+      "importe": 18031308.76,
+      "unidad": "ARS"
+    },
+    {
+      "codigo": "DED_ESPECIAL_NUEVOS",
+      "descripcion": "Deducci\u00f3n Especial [Art\u00edculo 30, inciso c),\nApartado 1 \u201cnuevos\nprofesionales/emprendedores\u201d]",
+      "importe": 20607210.01,
+      "unidad": "ARS"
+    },
+    {
+      "codigo": "DED_ESPECIAL_AP2",
+      "descripcion": "Deducci\u00f3n Especial [Art\u00edculo 30, inciso c),\nApartado 2]",
+      "importe": 24728652.02,
+      "unidad": "ARS"
+    }
+  ]
+}

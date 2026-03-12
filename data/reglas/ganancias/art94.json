@@ -1,0 +1,57 @@
+{
+  "version": "2026-S1",
+  "effective_from": "2026-01-01",
+  "effective_to": "2026-06-30",
+  "source_url": "https://www.afip.gob.ar/gananciasYBienes/ganancias/personas-humanas-sucesiones-indivisas/declaracion-jurada/documentos/Tabla-Art-94-LIG-per-ene-a-jun-2026.pdf",
+  "source_published_at": "2026-01-10",
+  "rows": [
+    {
+      "desde": 0.0,
+      "hasta": 2000030.09,
+      "cuota_fija": 0.0,
+      "alicuota": 0.05
+    },
+    {
+      "desde": 2000030.09,
+      "hasta": 4000060.17,
+      "cuota_fija": 100001.5,
+      "alicuota": 0.09
+    },
+    {
+      "desde": 4000060.17,
+      "hasta": 6000090.26,
+      "cuota_fija": 280004.21,
+      "alicuota": 0.12
+    },
+    {
+      "desde": 6000090.26,
+      "hasta": 9000135.4,
+      "cuota_fija": 520007.82,
+      "alicuota": 0.15
+    },
+    {
+      "desde": 9000135.4,
+      "hasta": 18000270.8,
+      "cuota_fija": 970014.59,
+      "alicuota": 0.19
+    },
+    {
+      "desde": 18000270.8,
+      "hasta": 27000406.2,
+      "cuota_fija": 2680040.32,
+      "alicuota": 0.23
+    },
+    {
+      "desde": 27000406.2,
+      "hasta": 40500609.3,
+      "cuota_fija": 4750071.46,
+      "alicuota": 0.27
+    },
+    {
+      "desde": 40500609.3,
+      "hasta": 60750913.96,
+      "cuota_fija": 8395126.3,
+      "alicuota": 0.31
+    }
+  ]
+}

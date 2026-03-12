@@ -1,0 +1,919 @@
+{
+  "version": "2026-S1",
+  "effective_from": "2026-01-01",
+  "effective_to": "2026-06-30",
+  "rules": [
+    {
+      "codigo": "CCT_PRESENTISMO",
+      "descripcion": "Presentismo",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "legajoField": "presentismo",
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "convenio"
+    },
+    {
+      "codigo": "CCT_HORAS_EXTRA",
+      "descripcion": "Horas extra",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "legajoField": "horasExtra",
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "convenio"
+    },
+    {
+      "codigo": "CCT_PREMIOS",
+      "descripcion": "Premios",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "legajoField": "premios",
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "convenio"
+    },
+    {
+      "codigo": "CCT_BONOS_NR",
+      "descripcion": "Bonos no remunerativos",
+      "tipo": "NoRemunerativo",
+      "formula": "LegajoField",
+      "legajoField": "bonosNoRemunerativos",
+      "activo": true,
+      "afectaGanancias": false,
+      "source": "convenio"
+    },
+    {
+      "codigo": "90070001",
+      "descripcion": "AF - Cantidad de familiares",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90070003",
+      "descripcion": "AF - Base y topes",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90070004",
+      "descripcion": "AF - Pago",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90070005",
+      "descripcion": "Acumular por periodo",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000005",
+      "descripcion": "IG - Bases, Cantidades y Topes",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000006",
+      "descripcion": "IG - Inicializar variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800000",
+      "descripcion": "IG - Total Impuesto a la Ganancia",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800001",
+      "descripcion": "Haberes Pluriempleo",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800002",
+      "descripcion": "Deducciones Pluriempleo",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800003",
+      "descripcion": "Otras Deducciones Pluriempleo",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800004",
+      "descripcion": "IG - Deducciones Servicio Domestico",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800005",
+      "descripcion": "IG - Deducciones Interes Prestamo Hipotecario",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800006",
+      "descripcion": "IG - Deducciones Primas Seguro",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800007",
+      "descripcion": "IG - Deducciones Cuota Medica Asistencial",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800008",
+      "descripcion": "IG - Deducciones Sepelio",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800009",
+      "descripcion": "IG - Deduccion Autonomos",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800013",
+      "descripcion": "IG - Deducciones Viaticos",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800014",
+      "descripcion": "IG - Deduccion Cobertur Medica",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800015",
+      "descripcion": "IG - Deduccion Honorarios Medicos",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800020",
+      "descripcion": "IG - Deducciones Plan Retiro Privado",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90800040",
+      "descripcion": "IG - Deducciones Aporte Voluntario",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90801000",
+      "descripcion": "IG - Porcentaje Ganancia no Imponible",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90801001",
+      "descripcion": "IG - Deducciones por Conyuge",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90801002",
+      "descripcion": "IG - Deducciones por Hijos",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90801003",
+      "descripcion": "IG - Deducciones de otros Fliares a Cargo",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90801010",
+      "descripcion": "IG - Deducciones de Donaciones",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90801011",
+      "descripcion": "IG - Deducciones Especiales",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90801012",
+      "descripcion": "IG - Deducciones Ganancia No Imponible",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90802000",
+      "descripcion": "IG - Calculo de la Retencion",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90802001",
+      "descripcion": "IG - Provisi\u00f3n de S.A.C.",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99999998",
+      "descripcion": "IG - Grabar las variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000100",
+      "descripcion": "Calculo a cargo Obras Sociales",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90999999",
+      "descripcion": "Actualizar acumuladores del periodo",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "93954995",
+      "descripcion": "SAC - Base",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000001",
+      "descripcion": "Obtener Licencias de Vacaciones (V)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000002",
+      "descripcion": "Obtener Licencias de Maternidad (M)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000003",
+      "descripcion": "Obtener Licencias de Examen (X)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000004",
+      "descripcion": "Obtener Licencias de Matrimonio (T)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000005",
+      "descripcion": "Obtener Licencias de Reserva de Puesto (O)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000006",
+      "descripcion": "Obtener Licencias de Excedencia (Q)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000007",
+      "descripcion": "Obtener Licencias de Sin Goce de Haberes (B)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000008",
+      "descripcion": "Obtener Licencias de Enfermedad (E)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000009",
+      "descripcion": "Obtener Licencias de Asistencia a Cursos (R)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000010",
+      "descripcion": "Obtener Licencias de Fallecimiento Familiar (F)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000011",
+      "descripcion": "Obtener Licencias de Lactancia (L)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000012",
+      "descripcion": "Obtener Licencias de Accidente (A)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000013",
+      "descripcion": "Obtener Licencias de Permiso Gremial (G)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000014",
+      "descripcion": "Obtener Licencias de Tramite Particular s/goce de haberes (P)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000015",
+      "descripcion": "Obtener Licencias de Familiar Enfermo (N)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000016",
+      "descripcion": "Obtener Licencias de Nacimiento de Hijo (H)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000017",
+      "descripcion": "Obtener Licencias de Compensatorio (C)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000018",
+      "descripcion": "Obtener Licencias de Donacion de Sangre (S)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "91000019",
+      "descripcion": "Obtener Licencias de Matrimonio de Hijo (J)",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99999994",
+      "descripcion": "Licencias",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000007",
+      "descripcion": "SAC - Corresponde Pagar",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000008",
+      "descripcion": "SACNoRem - Actualizaci\u00f3n de Variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000011",
+      "descripcion": "SAC - Mes de pago",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "93955000",
+      "descripcion": "SAC - Actualizaci\u00f3n de Variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99900001",
+      "descripcion": "SICORE - Incializacion de Variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99999996",
+      "descripcion": "SICORE - Grabar las variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000000",
+      "descripcion": "SIJP - Situaciones de Revista.",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000001",
+      "descripcion": "SIJP - Conyuge, Hijos, Adherentes",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000002",
+      "descripcion": "SIJP - Condici\u00f3n, Actividad, Tipo Operaci\u00f3n",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000003",
+      "descripcion": "SIJP - Mod. Contrataci\u00f3n, Siniestrado, Convencionado",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000005",
+      "descripcion": "SIJP - Zona / Localidad",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000006",
+      "descripcion": "SIJP - LRT",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000007",
+      "descripcion": "SIJP - Seguridad Social",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000009",
+      "descripcion": "SIJP - Obra Social",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000010",
+      "descripcion": "SIJP - Importes remuneraciones",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000011",
+      "descripcion": "SIJP - Regimen, Tipo de Empresa, Reduccion",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000017",
+      "descripcion": "SIJP - Remuneraciones Imponibles",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000018",
+      "descripcion": "SIJP - Remuneraci\u00f3n Total",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000020",
+      "descripcion": "SICOSS - Conceptos no Remunerativos",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99000021",
+      "descripcion": "SICOSS - Remuneraciones Imponibles",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99999997",
+      "descripcion": "SICOSS - Grabar las variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "99999999",
+      "descripcion": "SIJP - Grabar las variables",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000001",
+      "descripcion": "Inicializar Variables de Sistema",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000002",
+      "descripcion": "Calculo del sueldo Basico",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "amount": 0,
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "23.01",
+      "legajoField": "basico"
+    },
+    {
+      "codigo": "90000003",
+      "descripcion": "Calculo de promedio de remuneraciones",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000004",
+      "descripcion": "Calculo del mejor sueldo del ultimo a\u00f1o",
+      "tipo": "Remunerativo",
+      "formula": "LegajoField",
+      "amount": 0,
+      "activo": true,
+      "afectaGanancias": true,
+      "source": "23.01",
+      "legajoField": "basico"
+    },
+    {
+      "codigo": "90000009",
+      "descripcion": "Calculo de los porcentajes de Contribuciones",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000010",
+      "descripcion": "Salario M\u00ednimo Vital y Movil",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90000012",
+      "descripcion": "Inicializa acumuladores de periodos",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90060000",
+      "descripcion": "Base para Descuentos o Retenciones",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90060001",
+      "descripcion": "Calculo a cargo Obras Sociales",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90070002",
+      "descripcion": "Acumular Sujeto Retencion por Periodo",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    },
+    {
+      "codigo": "90090000",
+      "descripcion": "Base p/Aportes y Cont.",
+      "tipo": "Remunerativo",
+      "formula": "Fixed",
+      "amount": 0,
+      "activo": false,
+      "afectaGanancias": false,
+      "source": "23.01"
+    }
+  ]
+}
