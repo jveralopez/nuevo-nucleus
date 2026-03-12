@@ -19,6 +19,6 @@
 
 ## BFF
 - [x] BFF responde `/health`
-- [ ] `GET /api/rh/v1/organizacion/organigramas` (404)
-- [ ] `GET /api/rh/v1/organizacion/unidades/tree` (405)
-- [ ] `POST /api/rh/v1/organizacion/organigramas` (404)
+- [x] `GET /api/rh/v1/organizacion/organigramas`
+- [x] `GET /api/rh/v1/organizacion/unidades/tree`
+- [ ] `POST /api/rh/v1/organizacion/organigramas`

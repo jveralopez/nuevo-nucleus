@@ -6,10 +6,10 @@
 
 ## Resultados
 - `GET http://localhost:5090/health` -> 200
-- `GET http://localhost:5090/api/rh/v1/organizacion/organigramas` -> 404
-- `GET http://localhost:5090/api/rh/v1/organizacion/unidades/tree` -> 405
-- `POST http://localhost:5090/api/rh/v1/organizacion/organigramas` -> 404
+- `GET http://localhost:5090/api/rh/v1/organizacion/organigramas` -> 200
+- `GET http://localhost:5090/api/rh/v1/organizacion/unidades/tree` -> 200
+- `POST http://localhost:5090/api/rh/v1/organizacion/organigramas` -> no probado (pendiente)
 
 ## Observaciones
-- Endpoints de organizacion en `organizacion-service` retornaron 404 para `/organigramas` y `/unidades/tree`.
-- `GET /empresas` en `organizacion-service` retorno 200, por lo que el servicio esta arriba.
+- La falla anterior se debio a volumenes con tablas existentes sin `__EFMigrationsHistory`.
+- Reinicio con volumenes nuevos resolvio los 404/405.
