@@ -7,6 +7,14 @@
 - [x] Login `POST /login` OK
 - [x] Endpoint protegido `/me` OK
 
+## Migraciones
+- [x] DB vacia: `dotnet ef database update` (organizacion-service)
+- [x] DB con datos: insert + update sin perdida (organizacion-service)
+- [ ] `__EFMigrationsHistory` actualizado y sin errores (resto servicios)
+
+## CI
+- [ ] build-test en PR: falla por `dotnet restore` sin solution en root
+
 ## Portales
 - [x] Portal RH archivos estaticos presentes
 - [x] Portal RH carga (visual)
