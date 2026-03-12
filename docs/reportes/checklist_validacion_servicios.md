@@ -13,9 +13,11 @@
 - [ ] `__EFMigrationsHistory` actualizado y sin errores
 
 ## Portales
-- [ ] Portal RH carga y lista empresas
-- [ ] Organigrama versionado disponible
-- [ ] Portal Empleado carga recibos demo
+- [x] Portal RH archivos estaticos presentes
+- [ ] Portal RH carga y lista empresas (verificacion visual)
+- [ ] Organigrama versionado disponible (verificacion visual)
+- [x] Portal Empleado archivos estaticos presentes
+- [ ] Portal Empleado carga recibos demo (verificacion visual)
 
 ## BFF
 - [x] BFF responde `/health`
