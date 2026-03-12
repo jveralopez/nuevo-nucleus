@@ -83,3 +83,57 @@ INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
 SELECT '20260312154000_AddOrganigramas', '8.0.6'
 WHERE NOT EXISTS (SELECT 1 FROM __EFMigrationsHistory WHERE MigrationId = '20260312154000_AddOrganigramas');
 ```
+
+## CU-OP-07 · Verificacion de migraciones (DB vacia y con datos)
+**Objetivo:** validar migraciones en escenarios reales.
+**Actores:** operador.
+**Precondiciones:** SDK .NET, acceso a DB y backups.
+**Flujo (DB vacia):**
+1. Crear una DB nueva.
+2. Ejecutar `dotnet ef database update`.
+3. Validar tablas y `__EFMigrationsHistory`.
+**Flujo (DB con datos):**
+1. Hacer backup de la DB actual.
+2. Aplicar baseline si corresponde (CU-OP-06).
+3. Ejecutar `dotnet ef database update`.
+4. Validar integridad y logs sin errores.
+**Resultado esperado:** migraciones aplicadas sin perdida de datos.
+
+### Comandos por servicio
+
+**auth-service**
+- `dotnet ef database update --project auth-service/auth-service.csproj`
+
+**configuracion-service**
+- `dotnet ef database update --project configuracion-service/configuracion-service.csproj`
+
+**organizacion-service**
+- `dotnet ef database update --project organizacion-service/organizacion-service.csproj`
+
+**personal-service**
+- `dotnet ef database update --project personal-service/personal-service.csproj`
+
+**liquidacion-service**
+- `dotnet ef database update --project liquidacion-service/liquidacion-service.csproj`
+
+**integration-hub-service**
+- `dotnet ef database update --project integration-hub-service/integration-hub-service.csproj`
+
+**nucleuswf-service**
+- `dotnet ef database update --project nucleuswf-service/nucleuswf-service.csproj`
+
+## CU-OP-08 · Smoke test desde clone limpio
+**Objetivo:** verificar que el sistema arranca desde cero con pasos reproducibles.
+**Actores:** operador.
+**Precondiciones:** Git y Docker instalados.
+**Flujo:**
+1. Clonar el repo y entrar al directorio:
+   - `git clone https://github.com/jveralopez/nuevo-nucleus.git`
+   - `cd nuevo-nucleus`
+2. Crear `.env.prod` a partir de variables requeridas.
+3. Levantar servicios con `docker compose -f docker-compose.prod.yml --env-file .env.prod up -d`.
+4. Verificar `docker compose ps` y estado `healthy`.
+5. Probar `/healthz` en servicios core.
+6. Probar login y una llamada protegida con JWT.
+7. Probar flujo basico en Portal RH (empresas y organigrama).
+**Resultado esperado:** servicios operativos sin errores criticos.

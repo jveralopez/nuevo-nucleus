@@ -34,3 +34,12 @@
 1. Cambiar `AUTH_SIGNING_KEY` en `.env.prod`.
 2. Redeploy de todos los servicios.
 3. Validar login y APIs protegidas.
+
+## RB-06 · Smoke test post-deploy
+**Sintoma:** validacion rapida tras despliegue.
+**Acciones:**
+1. Verificar `docker compose ps` y estados `healthy`.
+2. Probar `/healthz` y `/readyz` de servicios core.
+3. Probar login y una llamada protegida con JWT.
+4. Probar flujo basico de Portal RH (listar empresas y organigrama).
+5. Confirmar logs sin errores criticos.
