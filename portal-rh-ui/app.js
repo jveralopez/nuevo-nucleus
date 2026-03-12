@@ -22,7 +22,7 @@ const state = {
   personalUrl: localStorage.getItem(KEYS.personal) || "http://localhost:5200",
   hubUrl: localStorage.getItem(KEYS.hub) || "http://localhost:5050",
   wfUrl: localStorage.getItem(KEYS.wf) || "http://localhost:5051",
-  bffUrl: localStorage.getItem(KEYS.bff) || "",
+  bffUrl: localStorage.getItem(KEYS.bff) || "http://localhost:5090",
   configUrl: localStorage.getItem(KEYS.config) || "http://localhost:5300",
   token: normalizeToken(storedToken),
   empresas: [],
