@@ -1,0 +1,24 @@
+# Environment
+.env
+.env.*
+
+# Build outputs
+**/bin/
+**/obj/
+
+# Logs and artifacts
+artifacts/
+artifactse2e/
+**/*.log
+
+# Databases and local state
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/*.db-wal
+**/*.db-shm
+**/storage/exports/
+
+# OS / tooling
+.DS_Store
+Thumbs.db

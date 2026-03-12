@@ -1,0 +1,269 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ./ops/otel/otel-collector-config.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    depends_on:
+      - jaeger
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.58
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686"
+      - "14250:14250"
+
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    volumes:
+      - ./ops/otel/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__Origins=${CORS_ORIGINS}
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - Auth__SeedAdminUser=${AUTH_ADMIN_USER}
+      - Auth__SeedAdminPassword=${AUTH_ADMIN_PASS}
+      - Database__ApplyMigrations=${DB_APPLY_MIGRATIONS}
+      - DataProtection__KeysPath=/keys
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=auth-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+      - ConnectionStrings__AuthDb=Data Source=/data/auth.db
+    volumes:
+      - auth-data:/data
+      - keys-data:/keys
+    ports:
+      - "5001:8080"
+
+  organizacion-service:
+    build:
+      context: .
+      dockerfile: organizacion-service/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__Origins=${CORS_ORIGINS}
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - Database__ApplyMigrations=${DB_APPLY_MIGRATIONS}
+      - DataProtection__KeysPath=/keys
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=organizacion-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+      - ConnectionStrings__OrganizacionDb=Data Source=/data/organizacion.db
+    volumes:
+      - organizacion-data:/data
+      - keys-data:/keys
+    ports:
+      - "5100:8080"
+    depends_on:
+      - auth-service
+
+  personal-service:
+    build:
+      context: .
+      dockerfile: personal-service/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__Origins=${CORS_ORIGINS}
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - Database__ApplyMigrations=${DB_APPLY_MIGRATIONS}
+      - DataProtection__KeysPath=/keys
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=personal-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+      - ConnectionStrings__PersonalDb=Data Source=/data/personal.db
+    volumes:
+      - personal-data:/data
+      - keys-data:/keys
+    ports:
+      - "5200:8080"
+    depends_on:
+      - auth-service
+
+  liquidacion-service:
+    build:
+      context: .
+      dockerfile: liquidacion-service/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__Origins=${CORS_ORIGINS}
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - Database__ApplyMigrations=${DB_APPLY_MIGRATIONS}
+      - DataProtection__KeysPath=/keys
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=liquidacion-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+      - ConnectionStrings__LiquidacionDb=Data Source=/data/liquidacion.db
+      - IntegrationHub__BaseUrl=http://integration-hub-service:8080
+    volumes:
+      - liquidacion-data:/data
+      - keys-data:/keys
+      - ./data/catalogos:/data/catalogos
+      - ./data/reglas:/data/reglas
+      - ./data/ganancias:/data/ganancias
+    ports:
+      - "5188:8080"
+    depends_on:
+      - auth-service
+      - integration-hub-service
+
+  nucleuswf-service:
+    build:
+      context: .
+      dockerfile: nucleuswf-service/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__Origins=${CORS_ORIGINS}
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - Database__ApplyMigrations=${DB_APPLY_MIGRATIONS}
+      - DataProtection__KeysPath=/keys
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=nucleuswf-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+      - ConnectionStrings__NucleusWfDb=Data Source=/data/nucleuswf.db
+    volumes:
+      - nucleuswf-data:/data
+      - keys-data:/keys
+    ports:
+      - "5051:8080"
+    depends_on:
+      - auth-service
+
+  integration-hub-service:
+    build:
+      context: .
+      dockerfile: integration-hub-service/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__Origins=${CORS_ORIGINS}
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - Database__ApplyMigrations=${DB_APPLY_MIGRATIONS}
+      - DataProtection__KeysPath=/keys
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=integration-hub-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+      - ConnectionStrings__IntegrationHubDb=Data Source=/data/integration-hub.db
+      - Secrets__SecretsFile=/data/secrets.json
+    volumes:
+      - integration-data:/data
+      - keys-data:/keys
+    ports:
+      - "5050:8080"
+    depends_on:
+      - auth-service
+
+  portal-bff-service:
+    build:
+      context: .
+      dockerfile: portal-bff-service/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__Origins=${CORS_ORIGINS}
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - DataProtection__KeysPath=/keys
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=portal-bff-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+      - ConnectionStrings__PortalBffDb=Data Source=/data/portal-bff.db
+      - Portal__LiquidacionApi=http://liquidacion-service:8080
+      - Portal__WfApi=http://nucleuswf-service:8080
+      - Portal__OrganizacionApi=http://organizacion-service:8080
+      - Portal__PersonalApi=http://personal-service:8080
+      - Portal__IntegrationHubApi=http://integration-hub-service:8080
+      - Portal__ConfiguracionApi=http://configuracion-service:8080
+    volumes:
+      - portal-bff-data:/data
+      - keys-data:/keys
+    ports:
+      - "5090:8080"
+    depends_on:
+      - auth-service
+      - liquidacion-service
+      - nucleuswf-service
+      - organizacion-service
+      - personal-service
+      - integration-hub-service
+
+  configuracion-service:
+    build: ./configuracion-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Auth__Issuer=${AUTH_ISSUER}
+      - Auth__Audience=${AUTH_AUDIENCE}
+      - Auth__SigningKey=${AUTH_SIGNING_KEY}
+      - Cors__Origins=${CORS_ORIGINS}
+      - Database__ApplyMigrations=${DB_APPLY_MIGRATIONS}
+      - DataProtection__KeysPath=/keys
+      - ConnectionStrings__ConfiguracionDb=Data Source=/data/configuracion.db
+      - OpenTelemetry__Enabled=${OTEL_ENABLED}
+      - OpenTelemetry__ServiceName=configuracion-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER}
+    volumes:
+      - configuracion-data:/data
+      - keys-data:/keys
+    ports:
+      - "5300:8080"
+    depends_on:
+      - auth-service
+
+volumes:
+  auth-data:
+  organizacion-data:
+  personal-data:
+  liquidacion-data:
+  nucleuswf-data:
+  integration-data:
+  portal-bff-data:
+  configuracion-data:
+  keys-data:

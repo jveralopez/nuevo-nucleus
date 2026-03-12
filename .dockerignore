@@ -1,0 +1,15 @@
+bin/
+obj/
+.git/
+.vs/
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/*.suo
+**/TestResults/
+**/storage/
+**/*.db
+**/node_modules/
+.env*
+**/secrets.json
