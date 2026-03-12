@@ -1,0 +1,36 @@
+# Runbooks operativos
+
+## RB-01 · Servicio no responde
+**Sintoma:** `/healthz` o `/readyz` no responde.
+**Acciones:**
+1. Revisar logs del contenedor.
+2. Verificar conexion a SQLite y permisos de volumen.
+3. Reiniciar el servicio con `docker compose restart <servicio>`.
+
+## RB-02 · Errores 401/403
+**Sintoma:** usuarios no autenticados o permisos insuficientes.
+**Acciones:**
+1. Confirmar `AUTH_ISSUER/AUDIENCE/SIGNING_KEY`.
+2. Validar token y rol.
+3. Verificar que no se haya rotado el signing key sin redeploy.
+
+## RB-03 · DB bloqueada
+**Sintoma:** errores SQLite "database is locked".
+**Acciones:**
+1. Verificar procesos concurrentes en el volumen.
+2. Reducir concurrencia y reiniciar servicio.
+3. Si persiste, evaluar migrar a DB server.
+
+## RB-04 · Observabilidad sin datos
+**Sintoma:** Jaeger/Prometheus sin trazas/metricas.
+**Acciones:**
+1. Verificar `OTEL_ENABLED=true` y `OTEL_EXPORTER_OTLP_ENDPOINT`.
+2. Revisar logs del `otel-collector`.
+3. Confirmar puertos 4317/8889 accesibles.
+
+## RB-05 · Rotacion de secretos
+**Sintoma:** despliegue con llaves nuevas.
+**Acciones:**
+1. Cambiar `AUTH_SIGNING_KEY` en `.env.prod`.
+2. Redeploy de todos los servicios.
+3. Validar login y APIs protegidas.

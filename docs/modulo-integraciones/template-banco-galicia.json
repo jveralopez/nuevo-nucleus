@@ -1,0 +1,19 @@
+{
+  "name": "banco-galicia",
+  "version": "1.0.0",
+  "schedule": "0 4 * * *",
+  "source": {
+    "type": "sql",
+    "connection": "rrhh-sql",
+    "query": "./queries/galicia.sql"
+  },
+  "transform": {
+    "type": "liquid",
+    "template": "./templates/galicia.liquid"
+  },
+  "destination": {
+    "type": "sftp",
+    "connection": "galicia-sftp",
+    "path": "/out/{{fecha}}.txt"
+  }
+}
