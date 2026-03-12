@@ -18,10 +18,31 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Restore
-        run: dotnet restore
+        run: |
+          dotnet restore auth-service/auth-service.csproj
+          dotnet restore configuracion-service/configuracion-service.csproj
+          dotnet restore organizacion-service/organizacion-service.csproj
+          dotnet restore personal-service/personal-service.csproj
+          dotnet restore liquidacion-service/liquidacion-service.csproj
+          dotnet restore integration-hub-service/integration-hub-service.csproj
+          dotnet restore nucleuswf-service/nucleuswf-service.csproj
+          dotnet restore portal-bff-service/portal-bff-service.csproj
+          dotnet restore organizacion-service.Tests/organizacion-service.Tests.csproj
+          dotnet restore personal-service.Tests/personal-service.Tests.csproj
+          dotnet restore integration-hub-service.Tests/integration-hub-service.Tests.csproj
+          dotnet restore liquidacion-service.Tests/liquidacion-service.Tests.csproj
+          dotnet restore portal-bff-service.Tests/portal-bff-service.Tests.csproj
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: |
+          dotnet build auth-service/auth-service.csproj --configuration Release --no-restore
+          dotnet build configuracion-service/configuracion-service.csproj --configuration Release --no-restore
+          dotnet build organizacion-service/organizacion-service.csproj --configuration Release --no-restore
+          dotnet build personal-service/personal-service.csproj --configuration Release --no-restore
+          dotnet build liquidacion-service/liquidacion-service.csproj --configuration Release --no-restore
+          dotnet build integration-hub-service/integration-hub-service.csproj --configuration Release --no-restore
+          dotnet build nucleuswf-service/nucleuswf-service.csproj --configuration Release --no-restore
+          dotnet build portal-bff-service/portal-bff-service.csproj --configuration Release --no-restore
 
       - name: Test
         run: |
