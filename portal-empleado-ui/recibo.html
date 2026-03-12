@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recibo de Sueldo</title>
+    <style>
+      :root {
+        --bg: #f5f3ee;
+        --ink: #1e1e1e;
+        --muted: #6b6b6b;
+        --line: #d8d4cc;
+        --accent: #0c5a5a;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        font-family: "Georgia", "Times New Roman", serif;
+        color: var(--ink);
+      }
+      .sheet {
+        max-width: 860px;
+        margin: 32px auto;
+        background: #fff;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        padding: 32px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 2px solid var(--line);
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+      }
+      .title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .meta {
+        text-align: right;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 24px;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .value {
+        font-weight: 600;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th, td {
+        padding: 8px 6px;
+        border-bottom: 1px solid var(--line);
+      }
+      th {
+        text-align: left;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      td.amount, th.amount {
+        text-align: right;
+      }
+      .totals {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .totals table {
+        width: 320px;
+      }
+      .totals td {
+        border: none;
+        padding: 6px 0;
+      }
+      .neto {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: var(--muted);
+        border-top: 1px dashed var(--line);
+        padding-top: 12px;
+      }
+      .actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sheet">
+      <div class="header">
+        <div>
+          <div class="title">Recibo de Sueldo</div>
+          <div class="value" id="empresa">Empresa Demo SA</div>
+        </div>
+        <div class="meta">
+          <div>Periodo: <span id="periodo">2026-08</span></div>
+          <div>Fecha de pago: <span id="fecha">2026-08-31</span></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="label">Empleado</div>
+          <div class="value" id="empleado">Ana Perez</div>
+        </div>
+        <div>
+          <div class="label">Legajo</div>
+          <div class="value" id="legajo">100</div>
+        </div>
+        <div>
+          <div class="label">CUIL</div>
+          <div class="value" id="cuil">20-00000000-0</div>
+        </div>
+        <div>
+          <div class="label">Puesto</div>
+          <div class="value" id="puesto">Analista</div>
+        </div>
+        <div>
+          <div class="label">Centro de costo</div>
+          <div class="value" id="cc">Administracion</div>
+        </div>
+        <div>
+          <div class="label">Banco</div>
+          <div class="value" id="banco">Banco Demo</div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th class="amount">Haberes</th>
+            <th class="amount">Deducciones</th>
+          </tr>
+        </thead>
+        <tbody id="detalle">
+          <tr>
+            <td>Basico</td>
+            <td class="amount">1200.00</td>
+            <td class="amount">0.00</td>
+          </tr>
+          <tr>
+            <td>Antiguedad</td>
+            <td class="amount">200.00</td>
+            <td class="amount">0.00</td>
+          </tr>
+          <tr>
+            <td>Jubilacion</td>
+            <td class="amount">0.00</td>
+            <td class="amount">150.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <table>
+          <tr>
+            <td>Total Haberes</td>
+            <td class="amount" id="total-haberes">1400.00</td>
+          </tr>
+          <tr>
+            <td>Total Deducciones</td>
+            <td class="amount" id="total-deducciones">150.00</td>
+          </tr>
+          <tr>
+            <td class="neto">Neto a cobrar</td>
+            <td class="amount neto" id="total-neto">1250.00</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="button" onclick="window.print()">Imprimir</button>
+        <button class="btn ghost" type="button" id="btn-json">Cargar JSON</button>
+      </div>
+
+      <div class="footer">
+        Documento generado por Portal Empleado. Este recibo es una vista demo.
+      </div>
+    </div>
+
+    <script>
+      const demo = {
+        empresa: "Empresa Demo SA",
+        periodo: "2026-08",
+        fecha: "2026-08-31",
+        empleado: "Ana Perez",
+        legajo: "100",
+        cuil: "20-00000000-0",
+        puesto: "Analista",
+        cc: "Administracion",
+        banco: "Banco Demo",
+        conceptos: [
+          { nombre: "Basico", haber: 1200, deduccion: 0 },
+          { nombre: "Antiguedad", haber: 200, deduccion: 0 },
+          { nombre: "Jubilacion", haber: 0, deduccion: 150 }
+        ]
+      };
+
+      function render(recibo) {
+        document.getElementById("empresa").textContent = recibo.empresa;
+        document.getElementById("periodo").textContent = recibo.periodo;
+        document.getElementById("fecha").textContent = recibo.fecha;
+        document.getElementById("empleado").textContent = recibo.empleado;
+        document.getElementById("legajo").textContent = recibo.legajo;
+        document.getElementById("cuil").textContent = recibo.cuil;
+        document.getElementById("puesto").textContent = recibo.puesto;
+        document.getElementById("cc").textContent = recibo.cc;
+        document.getElementById("banco").textContent = recibo.banco;
+
+        const detalle = document.getElementById("detalle");
+        detalle.innerHTML = "";
+        let totalHaberes = 0;
+        let totalDeducciones = 0;
+        recibo.conceptos.forEach((c) => {
+          totalHaberes += c.haber;
+          totalDeducciones += c.deduccion;
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${c.nombre}</td>
+            <td class="amount">${c.haber.toFixed(2)}</td>
+            <td class="amount">${c.deduccion.toFixed(2)}</td>
+          `;
+          detalle.appendChild(row);
+        });
+        document.getElementById("total-haberes").textContent = totalHaberes.toFixed(2);
+        document.getElementById("total-deducciones").textContent = totalDeducciones.toFixed(2);
+        document.getElementById("total-neto").textContent = (totalHaberes - totalDeducciones).toFixed(2);
+      }
+
+      document.getElementById("btn-json").addEventListener("click", () => {
+        const raw = prompt("Pegar JSON de recibo:");
+        if (!raw) return;
+        try {
+          const data = JSON.parse(raw);
+          render(data);
+        } catch (err) {
+          alert("JSON invalido");
+        }
+      });
+
+      render(demo);
+    </script>
+  </body>
+</html>

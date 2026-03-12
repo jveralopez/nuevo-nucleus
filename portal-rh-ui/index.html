@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal RH · Visión</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="scene">
+      <header class="topbar">
+        <div class="brand">
+          <span class="logo-dot"></span>
+          <div>
+            <p class="brand-kicker">Nucleus RH Next</p>
+            <h1>Portal RH</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="status-pill" id="status-pill">Sin sesión</div>
+          <button id="btn-refresh" type="button" class="btn primary">Refrescar datos</button>
+        </div>
+      </header>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-view="dashboard" type="button">Dashboard</button>
+        <button class="nav-btn" data-view="organizacion" type="button">Organización</button>
+        <button class="nav-btn" data-view="personal" type="button">Personal</button>
+        <button class="nav-btn" data-view="liquidacion" type="button">Liquidación</button>
+        <button class="nav-btn" data-view="vacaciones" type="button">Vacaciones</button>
+        <button class="nav-btn" data-view="tiempos" type="button">Tiempos</button>
+        <button class="nav-btn" data-view="integraciones" type="button">Integraciones</button>
+        <button class="nav-btn" data-view="configuracion" type="button">Configuración</button>
+      </nav>
+
+      <main class="grid" data-view="dashboard">
+        <section class="hero card">
+          <div>
+            <p class="eyebrow">Visión operativa</p>
+            <h2>Gestión integral de RRHH en un solo tablero.</h2>
+            <p class="muted">
+              Organización, personal, liquidaciones e integraciones con estado en tiempo real.
+            </p>
+            <div class="hero-actions">
+              <button id="btn-login-demo" type="button" class="btn ghost">Login demo</button>
+              <button id="btn-save" type="button" class="btn">Guardar configuración</button>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <span class="stat-label">Empresas</span>
+              <span class="stat-value" id="stat-empresas">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Unidades</span>
+              <span class="stat-value" id="stat-unidades">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Legajos</span>
+              <span class="stat-value" id="stat-legajos">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Liquidaciones</span>
+              <span class="stat-value" id="stat-payrolls">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Jobs Integración</span>
+              <span class="stat-value" id="stat-jobs">--</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card modules">
+          <h3>Módulos RH</h3>
+          <div class="module-grid">
+            <article class="module">
+              <h4>Organización</h4>
+              <p>Empresas, unidades, posiciones.</p>
+              <span class="badge" id="badge-org">Sin datos</span>
+            </article>
+            <article class="module">
+              <h4>Personal</h4>
+              <p>Legajos y datos básicos.</p>
+              <span class="badge" id="badge-personal">Sin datos</span>
+            </article>
+            <article class="module">
+              <h4>Liquidación</h4>
+              <p>Ciclos, recibos, exportes.</p>
+              <span class="badge" id="badge-liq">Sin datos</span>
+            </article>
+            <article class="module">
+              <h4>Integraciones</h4>
+              <p>Templates, jobs, SFTP.</p>
+              <span class="badge" id="badge-int">Sin datos</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Liquidaciones recientes</h3>
+          <ul id="list-payrolls" class="list"></ul>
+        </section>
+
+        <section class="card">
+          <h3>Legajos</h3>
+          <ul id="list-legajos" class="list"></ul>
+        </section>
+
+        <section class="card">
+          <h3>Jobs de Integración</h3>
+          <ul id="list-jobs" class="list"></ul>
+        </section>
+
+        <aside class="card settings">
+          <h3>Configuración</h3>
+          <label>Auth API
+            <input id="auth-url" placeholder="http://localhost:5001" />
+          </label>
+          <label>Organización API
+            <input id="org-url" placeholder="http://localhost:5100" />
+          </label>
+          <label>Personal API
+            <input id="personal-url" placeholder="http://localhost:5200" />
+          </label>
+          <label>Liquidación API
+            <input id="liq-url" placeholder="http://localhost:5188" />
+          </label>
+          <label>Integration Hub API
+            <input id="hub-url" placeholder="http://localhost:5050" />
+          </label>
+          <label>Workflow API
+            <input id="wf-url" placeholder="http://localhost:5051" />
+          </label>
+          <label>Portal BFF
+            <input id="bff-url" placeholder="http://localhost:5090" />
+          </label>
+          <label>Configuración API
+            <input id="config-url" placeholder="http://localhost:5300" />
+          </label>
+          <p class="hint">Si configurás BFF, el portal usa /api/rh/v1/* para centralizar.</p>
+          <label>JWT
+            <input id="token" placeholder="Bearer token" />
+          </label>
+          <p class="hint">Se guarda en localStorage. El botón "Login demo" usa admin/admin123.</p>
+        </aside>
+      </main>
+
+      <main class="grid hidden" data-view="configuracion">
+        <section class="card">
+          <h3>Catálogos</h3>
+          <form id="form-catalogo-buscar" class="form">
+            <label>Tipo
+              <input name="tipo" placeholder="TIPO_CATALOGO" required />
+            </label>
+            <button type="submit" class="btn">Cargar catálogo</button>
+          </form>
+          <ul id="list-catalogos" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nuevo catálogo</h3>
+          <form id="form-catalogo" class="form">
+            <label>Tipo<input name="tipo" required /></label>
+            <label>Código<input name="codigo" required /></label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Activo<input name="activo" placeholder="true" /></label>
+            <label>Metadata JSON<input name="metadata" placeholder='{"key":"value"}' /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Actualizar catálogo</h3>
+          <form id="form-catalogo-edit" class="form">
+            <label>ID<input name="id" required /></label>
+            <label>Código<input name="codigo" required /></label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Activo<input name="activo" placeholder="true" /></label>
+            <label>Metadata JSON<input name="metadata" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+          <form id="form-catalogo-delete" class="form">
+            <label>ID<input name="id" required /></label>
+            <button type="submit" class="btn ghost">Eliminar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Parámetros</h3>
+          <form id="form-parametros" class="form">
+            <button type="submit" class="btn">Cargar parámetros</button>
+          </form>
+          <ul id="list-parametros" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Upsert parámetro</h3>
+          <form id="form-parametro" class="form">
+            <label>Clave<input name="clave" required /></label>
+            <label>Valor<input name="valor" required /></label>
+            <label>Descripción<input name="descripcion" /></label>
+            <label>Activo<input name="activo" placeholder="true" /></label>
+            <button type="submit" class="btn">Guardar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Buscar parámetro</h3>
+          <form id="form-parametro-buscar" class="form">
+            <label>Clave<input name="clave" required /></label>
+            <button type="submit" class="btn">Buscar</button>
+          </form>
+          <div id="parametro-detalle" class="list"></div>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="organizacion">
+        <section class="card">
+          <h3>Empresas</h3>
+          <ul id="list-empresas" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nueva empresa</h3>
+          <form id="form-empresa" class="form">
+            <label>Nombre<input name="nombre" required /></label>
+            <label>País<input name="pais" required /></label>
+            <label>Moneda<input name="moneda" required /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Editar empresa</h3>
+          <form id="form-empresa-edit" class="form">
+            <label>Empresa
+              <select name="empresaId" id="select-empresa-edit" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>País<input name="pais" required /></label>
+            <label>Moneda<input name="moneda" required /></label>
+            <label>Estado<input name="estado" placeholder="Activa" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Unidades</h3>
+          <ul id="list-unidades" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nueva unidad</h3>
+          <form id="form-unidad" class="form">
+            <label>Empresa
+              <select name="empresaId" id="select-empresa" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Tipo<input name="tipo" placeholder="Departamento" required /></label>
+            <label>Padre (opcional)<input name="padreId" /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Editar unidad</h3>
+          <form id="form-unidad-edit" class="form">
+            <label>Unidad
+              <select name="unidadId" id="select-unidad-edit" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Tipo<input name="tipo" required /></label>
+            <label>Padre (opcional)<input name="padreId" /></label>
+            <label>Estado<input name="estado" placeholder="Activa" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Sindicatos</h3>
+          <ul id="list-sindicatos" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nuevo sindicato</h3>
+          <form id="form-sindicato" class="form">
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Código<input name="codigo" /></label>
+            <label>Jurisdicción<input name="jurisdiccion" /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Editar sindicato</h3>
+          <form id="form-sindicato-edit" class="form">
+            <label>Sindicato
+              <select name="sindicatoId" id="select-sindicato-edit" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Código<input name="codigo" /></label>
+            <label>Jurisdicción<input name="jurisdiccion" /></label>
+            <label>Estado<input name="estado" placeholder="Activo" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Convenios</h3>
+          <ul id="list-convenios" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nuevo convenio</h3>
+          <form id="form-convenio" class="form">
+            <label>Sindicato
+              <select name="sindicatoId" id="select-convenio-sindicato" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Número<input name="numero" /></label>
+            <label>Vigencia desde<input name="vigenciaDesde" type="date" /></label>
+            <label>Vigencia hasta<input name="vigenciaHasta" type="date" /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Editar convenio</h3>
+          <form id="form-convenio-edit" class="form">
+            <label>Convenio
+              <select name="convenioId" id="select-convenio-edit" required></select>
+            </label>
+            <label>Sindicato
+              <select name="sindicatoId" id="select-convenio-edit-sindicato" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Número<input name="numero" /></label>
+            <label>Vigencia desde<input name="vigenciaDesde" type="date" /></label>
+            <label>Vigencia hasta<input name="vigenciaHasta" type="date" /></label>
+            <label>Estado<input name="estado" placeholder="Activo" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="personal">
+        <section class="card">
+          <h3>Legajos</h3>
+          <ul id="list-legajos-full" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nuevo legajo</h3>
+          <form id="form-legajo" class="form">
+            <label>Número<input name="numero" required /></label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Apellido<input name="apellido" required /></label>
+            <label>Documento<input name="documento" required /></label>
+            <label>CUIL<input name="cuil" required /></label>
+            <label>Email<input name="email" /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Editar legajo</h3>
+          <form id="form-legajo-edit" class="form">
+            <label>Legajo
+              <select name="legajoId" id="select-legajo-edit" required></select>
+            </label>
+            <label>Número<input name="numero" required /></label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Apellido<input name="apellido" required /></label>
+            <label>Documento<input name="documento" required /></label>
+            <label>CUIL<input name="cuil" required /></label>
+            <label>Email<input name="email" /></label>
+            <label>Estado<input name="estado" placeholder="Activo" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Posiciones</h3>
+          <ul id="list-posiciones" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nueva posición</h3>
+          <form id="form-posicion" class="form">
+            <label>Unidad
+              <select name="unidadId" id="select-unidad" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Nivel<input name="nivel" /></label>
+            <label>Perfil<input name="perfil" /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Editar posición</h3>
+          <form id="form-posicion-edit" class="form">
+            <label>Posición
+              <select name="posicionId" id="select-posicion-edit" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Nivel<input name="nivel" /></label>
+            <label>Perfil<input name="perfil" /></label>
+            <label>Estado<input name="estado" placeholder="Activa" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Asignar legajo a posición</h3>
+          <form id="form-asignar-posicion" class="form">
+            <label>Posición
+              <select name="posicionId" id="select-posicion" required></select>
+            </label>
+            <label>Legajo
+              <select name="legajoId" id="select-legajo" required></select>
+            </label>
+            <button type="submit" class="btn">Asignar</button>
+          </form>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="liquidacion">
+        <section class="card">
+          <h3>Liquidaciones</h3>
+          <ul id="list-payrolls-full" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nueva liquidación</h3>
+          <form id="form-payroll" class="form">
+            <label>Periodo<input name="periodo" placeholder="2026-02" required /></label>
+            <label>Tipo<input name="tipo" placeholder="Mensual" required /></label>
+            <label>Descripción<input name="descripcion" /></label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Editar liquidación</h3>
+          <form id="form-payroll-edit" class="form">
+            <label>Liquidación
+              <select name="payrollId" id="select-payroll-edit" required></select>
+            </label>
+            <label>Periodo<input name="periodo" required /></label>
+            <label>Tipo<input name="tipo" required /></label>
+            <label>Descripción<input name="descripcion" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Agregar legajo a liquidación</h3>
+          <form id="form-legajo-payroll" class="form">
+            <label>Liquidación
+              <select name="payrollId" id="select-payroll" required></select>
+            </label>
+            <label>Número<input name="numero" required /></label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>CUIL<input name="cuil" required /></label>
+            <label>Básico<input name="basico" type="number" step="0.01" required /></label>
+            <label>Antigüedad<input name="antiguedad" type="number" step="0.01" /></label>
+            <label>Adicionales<input name="adicionales" type="number" step="0.01" /></label>
+            <label>Descuentos<input name="descuentos" type="number" step="0.01" /></label>
+            <button type="submit" class="btn">Agregar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Recibos por liquidación</h3>
+          <form id="form-recibos" class="form">
+            <label>Liquidación
+              <select name="payrollId" id="select-payroll-recibos" required></select>
+            </label>
+            <button type="submit" class="btn">Cargar recibos</button>
+          </form>
+          <ul id="list-recibos" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Exportes</h3>
+          <form id="form-exportes" class="form">
+            <label>Liquidación
+              <select name="payrollId" id="select-payroll-exportes" required></select>
+            </label>
+            <button type="submit" class="btn">Generar exportes</button>
+          </form>
+          <ul id="list-exportes" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Detalle de liquidación</h3>
+          <form id="form-detalle" class="form">
+            <label>Liquidación
+              <select name="payrollId" id="select-payroll-detalle" required></select>
+            </label>
+            <button type="submit" class="btn">Ver detalle</button>
+          </form>
+          <div id="detalle-payroll" class="list"></div>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="vacaciones">
+        <section class="card">
+          <h3>Solicitudes de vacaciones</h3>
+          <ul id="list-vacaciones" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Acciones rápidas</h3>
+          <label>Actor<input id="vac-actor" placeholder="rrhh" /></label>
+          <label>Comentario<input id="vac-comment" placeholder="Aprobado" /></label>
+          <p class="hint">Usá los botones en la lista para aprobar/rechazar.</p>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="tiempos">
+        <section class="card">
+          <h3>Templates de integración</h3>
+          <ul id="list-templates" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Iniciar exporte de horas</h3>
+          <form id="form-tiempo-export" class="form">
+            <label>Template
+              <select name="templateId" id="select-template" required></select>
+            </label>
+            <label>Periodo<input name="periodo" placeholder="2026-06" /></label>
+            <label>Trigger<input name="trigger" placeholder="horas" required /></label>
+            <button type="submit" class="btn">Iniciar job</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Jobs de exporte</h3>
+          <ul id="list-jobs-tiempo" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Detalle de job</h3>
+          <form id="form-job-detalle" class="form">
+            <label>Job
+              <select name="jobId" id="select-job" required></select>
+            </label>
+            <button type="submit" class="btn">Ver detalle</button>
+          </form>
+          <div id="detalle-job" class="list"></div>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="integraciones">
+        <section class="card">
+          <h3>Jobs de Integración</h3>
+          <ul id="list-jobs-full" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Acciones</h3>
+          <p class="hint">Reintentar jobs fallidos desde las listas.</p>
+        </section>
+        <section class="card">
+          <h3>Eventos de integración</h3>
+          <form id="form-eventos" class="form">
+            <label>Job
+              <select name="jobId" id="select-job-evento"></select>
+            </label>
+            <button type="submit" class="btn">Cargar eventos</button>
+          </form>
+          <ul id="list-eventos" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Triggers</h3>
+          <ul id="list-triggers" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Editar trigger</h3>
+          <form id="form-trigger-edit" class="form">
+            <label>Trigger
+              <select name="triggerId" id="select-trigger-edit" required></select>
+            </label>
+            <label>Event name<input name="eventName" required /></label>
+            <label>Template
+              <select name="templateId" id="select-template-trigger-edit" required></select>
+            </label>
+            <label>Habilitado
+              <select name="enabled">
+                <option value="true">Si</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Nuevo trigger</h3>
+          <form id="form-trigger" class="form">
+            <label>Event name<input name="eventName" placeholder="LiquidacionFinalizada" required /></label>
+            <label>Template
+              <select name="templateId" id="select-template-trigger" required></select>
+            </label>
+            <label>Habilitado
+              <select name="enabled">
+                <option value="true">Si</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <button type="submit" class="btn">Crear</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Ejecutar trigger</h3>
+          <form id="form-trigger-exec" class="form">
+            <label>Trigger
+              <select name="triggerId" id="select-trigger" required></select>
+            </label>
+            <label>Periodo<input name="periodo" placeholder="2026-08" /></label>
+            <label>Trigger<input name="trigger" placeholder="manual" required /></label>
+            <button type="submit" class="btn">Ejecutar</button>
+          </form>
+        </section>
+      </main>
+    </div>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

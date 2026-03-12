@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal Empleado · Autoservicio</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="scene">
+      <header class="topbar">
+        <div class="brand">
+          <span class="logo-dot"></span>
+          <div>
+            <p class="brand-kicker">Nucleus RH Next</p>
+            <h1>Portal Empleado</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="status-pill" id="status-pill">Sin sesión</div>
+          <button id="btn-refresh" type="button" class="btn primary">Refrescar datos</button>
+        </div>
+      </header>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-view="dashboard" type="button">Dashboard</button>
+        <button class="nav-btn" data-view="tareas" type="button">Tareas</button>
+        <button class="nav-btn" data-view="recibos" type="button">Recibos</button>
+        <button class="nav-btn" data-view="solicitudes" type="button">Solicitudes</button>
+      </nav>
+
+      <main class="grid" data-view="dashboard">
+        <section class="hero card">
+          <div>
+            <p class="eyebrow">Autoservicio</p>
+            <h2>Solicitudes, tareas y recibos en una sola vista.</h2>
+            <p class="muted">
+              Esta pantalla muestra workflows activos y recibos disponibles para empleados.
+            </p>
+            <div class="hero-actions">
+              <button id="btn-login-demo" type="button" class="btn ghost">Login demo</button>
+              <button id="btn-save" type="button" class="btn">Guardar configuración</button>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <span class="stat-label">Recibos</span>
+              <span class="stat-value" id="stat-recibos">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Workflows</span>
+              <span class="stat-value" id="stat-wf">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Instancias</span>
+              <span class="stat-value" id="stat-instancias">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Tareas</span>
+              <span class="stat-value" id="stat-tareas">--</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Notificaciones</span>
+              <span class="stat-value" id="stat-notif">--</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card modules">
+          <h3>Autoservicio</h3>
+          <div class="module-grid">
+            <article class="module">
+              <h4>Mis tareas</h4>
+              <p>Bandeja de workflows.</p>
+              <span class="badge" id="badge-wf">Sin datos</span>
+            </article>
+            <article class="module">
+              <h4>Recibos</h4>
+              <p>Historial de liquidaciones.</p>
+              <span class="badge" id="badge-recibos">Sin datos</span>
+            </article>
+            <article class="module">
+              <h4>Vacaciones</h4>
+              <p>Solicitudes y saldo.</p>
+              <span class="badge">Próximamente</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Recibos recientes</h3>
+          <ul id="list-recibos" class="list"></ul>
+        </section>
+
+        <section class="card">
+          <h3>Workflows activos</h3>
+          <ul id="list-wf" class="list"></ul>
+        </section>
+
+        <section class="card">
+          <h3>Instancias</h3>
+          <ul id="list-instancias" class="list"></ul>
+        </section>
+
+        <section class="card">
+          <h3>Notificaciones</h3>
+          <ul id="list-notificaciones" class="list"></ul>
+          <div class="actions">
+            <button id="btn-notif-refresh" class="btn ghost" type="button">Refrescar</button>
+            <button id="btn-notif-unread" class="btn ghost" type="button">Solo no leídas</button>
+            <button id="btn-notif-readall" class="btn ghost" type="button">Marcar todas</button>
+            <button id="btn-notif-clear" class="btn ghost" type="button">Limpiar</button>
+          </div>
+          <p class="hint">Resumen: <span id="notif-resumen">0/0</span></p>
+        </section>
+
+        <aside class="card settings">
+          <h3>Configuración</h3>
+          <label>Auth API
+            <input id="auth-url" placeholder="http://localhost:5001" />
+          </label>
+          <label>Liquidación API
+            <input id="liq-url" placeholder="http://localhost:5188" />
+          </label>
+          <label>Workflow API
+            <input id="wf-url" placeholder="http://localhost:5051" />
+          </label>
+          <label>JWT
+            <input id="token" placeholder="Bearer token" />
+          </label>
+          <label>Portal BFF
+            <input id="bff-url" placeholder="http://localhost:5090" />
+          </label>
+          <p class="hint">Con BFF activo, workflows/recibos/exportes se resuelven vía /api/portal/v1/*.</p>
+          <p class="hint">Se guarda en localStorage. El botón "Login demo" usa admin/admin123.</p>
+        </aside>
+      </main>
+
+      <main class="grid hidden" data-view="tareas">
+        <section class="card">
+          <h3>Workflows</h3>
+          <ul id="list-wf-full" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Instancias</h3>
+          <ul id="list-instancias-full" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Acciones rápidas</h3>
+          <label>Actor<input id="task-actor" placeholder="empleado" /></label>
+          <label>Comentario<input id="task-comment" placeholder="Aprobado" /></label>
+          <p class="hint">Usá los botones en la lista de instancias.</p>
+        </section>
+        <section class="card">
+          <h3>Historial</h3>
+          <ul id="list-historial" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Transicionar instancia</h3>
+          <form id="form-wf-transition" class="form">
+            <label>Instancia
+              <select name="instanceId" id="select-instancia" required></select>
+            </label>
+            <label>Evento<input name="evento" placeholder="aprobar" required /></label>
+            <label>Actor<input name="actor" placeholder="empleado" /></label>
+            <label>Datos (JSON)<input name="datos" placeholder='{"comentario":"OK"}' /></label>
+            <button type="submit" class="btn">Aplicar transición</button>
+          </form>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="recibos">
+        <section class="card">
+          <h3>Recibos</h3>
+          <ul id="list-recibos-full" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Detalle de recibos</h3>
+          <form id="form-recibos-detalle" class="form">
+            <label>Liquidación
+              <select name="payrollId" id="select-recibo-payroll" required></select>
+            </label>
+            <button type="submit" class="btn">Ver detalle</button>
+          </form>
+          <div class="actions">
+            <button id="btn-recibos-json" type="button" class="btn ghost">Descargar JSON</button>
+            <button id="btn-recibos-csv" type="button" class="btn ghost">Descargar CSV</button>
+            <button id="btn-recibos-export" type="button" class="btn ghost">Descargar exportes</button>
+            <a class="btn ghost" href="recibo.html" target="_blank" rel="noreferrer">Ver recibo</a>
+          </div>
+          <div id="detalle-recibos" class="list"></div>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="solicitudes">
+        <section class="card">
+          <h3>Solicitudes</h3>
+          <ul class="list">
+            <li>Vacaciones (próximamente)</li>
+            <li>Datos personales (próximamente)</li>
+            <li>Reclamos (próximamente)</li>
+          </ul>
+        </section>
+        <section class="card">
+          <h3>Workflows demo</h3>
+          <p class="hint">Crea definiciones base para Vacaciones, Datos Personales y Reclamos.</p>
+          <button id="btn-seed-wf" type="button" class="btn">Cargar workflows</button>
+        </section>
+        <section class="card">
+          <h3>Iniciar workflow</h3>
+          <form id="form-wf-start" class="form">
+            <label>Key<input name="key" placeholder="vacaciones" required /></label>
+            <label>Version<input name="version" placeholder="1.0.0" required /></label>
+            <label>Datos (JSON)<input name="datos" placeholder='{"dias":5}' /></label>
+            <button type="submit" class="btn">Iniciar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Solicitud de vacaciones</h3>
+          <form id="form-vacaciones" class="form">
+            <label>Legajo<input name="legajoNumero" placeholder="00045" required /></label>
+            <label>Inicio<input name="inicio" type="date" required /></label>
+            <label>Fin<input name="fin" type="date" required /></label>
+            <label>Días<input name="dias" type="number" required /></label>
+            <label>Motivo<input name="motivo" /></label>
+            <p class="hint">Saldo disponible: <span id="saldo-vacaciones">10</span> días.</p>
+            <button type="submit" class="btn">Enviar solicitud</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Actualización de datos personales</h3>
+          <form id="form-datos-personales" class="form">
+            <label>Motivo<input name="motivo" placeholder="Cambio de domicilio" required /></label>
+            <label>Detalle<input name="detalle" placeholder="Actualizar dirección y teléfono" required /></label>
+            <button type="submit" class="btn">Enviar solicitud</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Reclamo</h3>
+          <form id="form-reclamo" class="form">
+            <label>Asunto<input name="asunto" placeholder="Recibo incorrecto" required /></label>
+            <label>Detalle<input name="detalle" placeholder="Se detecta diferencia en descuentos" required /></label>
+            <button type="submit" class="btn">Enviar reclamo</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Solicitudes recientes</h3>
+          <ul id="list-solicitudes" class="list"></ul>
+        </section>
+      </main>
+    </div>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

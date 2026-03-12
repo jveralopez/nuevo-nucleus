@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recibo de Sueldo · Fox</title>
+    <style>
+      :root {
+        --bg: #f5f3ee;
+        --ink: #1e1e1e;
+        --muted: #6b6b6b;
+        --line: #d8d4cc;
+        --accent: #1f4d5a;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        font-family: "Georgia", "Times New Roman", serif;
+        color: var(--ink);
+      }
+      .sheet {
+        max-width: 860px;
+        margin: 32px auto;
+        background: #fff;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        padding: 32px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 2px solid var(--line);
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+      }
+      .title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .meta {
+        text-align: right;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 24px;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .value {
+        font-weight: 600;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th, td {
+        padding: 8px 6px;
+        border-bottom: 1px solid var(--line);
+      }
+      th {
+        text-align: left;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      td.amount, th.amount {
+        text-align: right;
+      }
+      .totals {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .totals table {
+        width: 320px;
+      }
+      .totals td {
+        border: none;
+        padding: 6px 0;
+      }
+      .neto {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: var(--muted);
+        border-top: 1px dashed var(--line);
+        padding-top: 12px;
+      }
+      .actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sheet">
+      <div class="header">
+        <div>
+          <div class="title">Recibo de Sueldo</div>
+          <div class="value">Fox SA</div>
+          <div class="label">CUIT 30-99999999-9</div>
+        </div>
+        <div class="meta">
+          <div>Periodo: <span>2026-08</span></div>
+          <div>Fecha de pago: <span>2026-08-31</span></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="label">Empleado</div>
+          <div class="value">Juan Gomez</div>
+        </div>
+        <div>
+          <div class="label">Legajo</div>
+          <div class="value">245</div>
+        </div>
+        <div>
+          <div class="label">CUIL</div>
+          <div class="value">20-12345678-9</div>
+        </div>
+        <div>
+          <div class="label">Categoria</div>
+          <div class="value">Administrativo A</div>
+        </div>
+        <div>
+          <div class="label">Puesto</div>
+          <div class="value">Analista Senior</div>
+        </div>
+        <div>
+          <div class="label">Centro de costo</div>
+          <div class="value">Operaciones</div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th class="amount">Haberes</th>
+            <th class="amount">Deducciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sueldo básico</td>
+            <td class="amount">2500.00</td>
+            <td class="amount">0.00</td>
+          </tr>
+          <tr>
+            <td>Antigüedad (5%)</td>
+            <td class="amount">125.00</td>
+            <td class="amount">0.00</td>
+          </tr>
+          <tr>
+            <td>Presentismo</td>
+            <td class="amount">200.00</td>
+            <td class="amount">0.00</td>
+          </tr>
+          <tr>
+            <td>Jubilación (11%)</td>
+            <td class="amount">0.00</td>
+            <td class="amount">309.75</td>
+          </tr>
+          <tr>
+            <td>Obra Social (3%)</td>
+            <td class="amount">0.00</td>
+            <td class="amount">84.75</td>
+          </tr>
+          <tr>
+            <td>PAMI (3%)</td>
+            <td class="amount">0.00</td>
+            <td class="amount">84.75</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <table>
+          <tr>
+            <td>Total Haberes</td>
+            <td class="amount">2825.00</td>
+          </tr>
+          <tr>
+            <td>Total Deducciones</td>
+            <td class="amount">479.25</td>
+          </tr>
+          <tr>
+            <td class="neto">Neto a cobrar</td>
+            <td class="amount neto">2345.75</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="button" onclick="window.print()">Imprimir</button>
+      </div>
+
+      <div class="footer">
+        Recibo de sueldo base · Fox SA (demo).
+      </div>
+    </div>
+  </body>
+</html>
