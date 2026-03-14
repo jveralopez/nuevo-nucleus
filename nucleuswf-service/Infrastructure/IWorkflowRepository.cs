@@ -12,4 +12,7 @@ public interface IWorkflowRepository
     Task<IReadOnlyCollection<WorkflowInstance>> GetInstancesAsync();
     Task<WorkflowInstance?> GetInstanceAsync(Guid id);
     Task SaveInstanceAsync(WorkflowInstance instance);
+
+    Task<WorkflowOperation?> GetOperationAsync(string idempotencyKey, string operation);
+    Task SaveOperationAsync(WorkflowOperation operation);
 }

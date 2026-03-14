@@ -8,4 +8,5 @@ public class PortalOptions
     public string PersonalApi { get; set; } = "http://localhost:5200";
     public string IntegrationHubApi { get; set; } = "http://localhost:5050";
     public string ConfiguracionApi { get; set; } = "http://localhost:5300";
+    public string TiemposApi { get; set; } = "http://localhost:5400";
 }

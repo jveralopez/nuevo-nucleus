@@ -35,15 +35,18 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         var rawOrigins = builder.Configuration["Cors:Origins"];
-        if (!string.IsNullOrWhiteSpace(rawOrigins))
-        {
-            var origins = rawOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
-        }
-        else
-        {
-            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-        }
+        var origins = string.IsNullOrWhiteSpace(rawOrigins)
+            ? Array.Empty<string>()
+            : rawOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var allowedOrigins = origins.Length > 0
+            ? origins
+            : builder.Environment.IsDevelopment()
+                ? new[] { "http://localhost:3001", "http://localhost:3002" }
+                : Array.Empty<string>();
+        var allowNullOrigin = builder.Environment.IsDevelopment();
+        policy.SetIsOriginAllowed(origin =>
+            (allowNullOrigin && origin == "null") || Array.Exists(allowedOrigins, candidate => string.Equals(candidate, origin, StringComparison.OrdinalIgnoreCase)));
+        policy.AllowAnyHeader().AllowAnyMethod();
     });
 });
 
@@ -92,7 +95,8 @@ builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" })
     .AddDbContextCheck<NucleusWfDbContext>("db", tags: new[] { "ready" });
 
-var otelEnabled = builder.Configuration.GetValue("OpenTelemetry:Enabled", false);
+var otelEnabledRaw = builder.Configuration["OpenTelemetry:Enabled"];
+var otelEnabled = bool.TryParse(otelEnabledRaw, out var otelEnabledValue) && otelEnabledValue;
 if (otelEnabled)
 {
     var serviceName = builder.Configuration.GetValue<string>("OpenTelemetry:ServiceName") ?? "nucleuswf-service";
@@ -164,10 +168,32 @@ if (!app.Environment.IsDevelopment())
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Headers.ContainsKey("X-Correlation-Id"))
+    {
+        context.Request.Headers["X-Correlation-Id"] = Guid.NewGuid().ToString("N");
+    }
+
+    var method = context.Request.Method;
+    var needsIdempotency = string.Equals(method, HttpMethods.Post, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(method, HttpMethods.Put, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(method, HttpMethods.Patch, StringComparison.OrdinalIgnoreCase);
+    if (needsIdempotency && !context.Request.Headers.ContainsKey("Idempotency-Key"))
+    {
+        context.Request.Headers["Idempotency-Key"] = Guid.NewGuid().ToString("N");
+    }
+
+    context.Response.Headers["X-Correlation-Id"] = context.Request.Headers["X-Correlation-Id"].ToString();
+    await next();
+});
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<NucleusWfDbContext>();
-    var applyMigrations = app.Configuration.GetValue("Database:ApplyMigrations", app.Environment.IsDevelopment());
+    var applyMigrationsRaw = app.Configuration["Database:ApplyMigrations"];
+    var applyMigrations = bool.TryParse(applyMigrationsRaw, out var applyMigrationsValue)
+        ? applyMigrationsValue
+        : app.Environment.IsDevelopment();
     if (applyMigrations)
     {
         db.Database.Migrate();
@@ -221,15 +247,30 @@ app.MapGet("/instances/{id:guid}", async (Guid id, WorkflowService service) =>
     return instance is null ? Results.NotFound() : Results.Ok(instance);
 }).RequireAuthorization();
 
-app.MapPost("/instances", async (StartInstanceRequest request, WorkflowService service) =>
+app.MapPost("/instances", async (HttpContext context, StartInstanceRequest request, WorkflowService service) =>
 {
-    var instance = await service.StartInstanceAsync(request);
+    var actor = context.User.Identity?.Name ?? context.User.FindFirst("unique_name")?.Value ?? "system";
+    var actorRole = context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    var correlationId = request.CorrelationId ?? context.Request.Headers["X-Correlation-Id"].ToString();
+    var idempotencyKey = request.IdempotencyKey ?? context.Request.Headers["Idempotency-Key"].ToString();
+    var instance = await service.StartInstanceAsync(
+        request with { CorrelationId = correlationId, IdempotencyKey = idempotencyKey },
+        actor,
+        actorRole);
     return Results.Created($"/instances/{instance.Id}", instance);
-}).RequireAuthorization(policy => policy.RequireRole("Admin"));
+}).RequireAuthorization();
 
-app.MapPost("/instances/{id:guid}/transitions", async (Guid id, TransitionRequest request, WorkflowService service) =>
+app.MapPost("/instances/{id:guid}/transitions", async (HttpContext context, Guid id, TransitionRequest request, WorkflowService service) =>
 {
-    var instance = await service.ApplyTransitionAsync(id, request);
+    var actor = context.User.Identity?.Name ?? context.User.FindFirst("unique_name")?.Value ?? "system";
+    var actorRole = context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    var correlationId = request.CorrelationId ?? context.Request.Headers["X-Correlation-Id"].ToString();
+    var idempotencyKey = request.IdempotencyKey ?? context.Request.Headers["Idempotency-Key"].ToString();
+    var instance = await service.ApplyTransitionAsync(
+        id,
+        request with { CorrelationId = correlationId, IdempotencyKey = idempotencyKey },
+        actor,
+        actorRole);
     return instance is null ? Results.NotFound() : Results.Ok(instance);
 }).RequireAuthorization(policy => policy.RequireRole("Admin"));
 

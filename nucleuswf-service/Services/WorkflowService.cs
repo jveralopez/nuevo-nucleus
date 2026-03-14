@@ -72,10 +72,20 @@ public class WorkflowService
 
     public Task<WorkflowInstance?> GetInstanceAsync(Guid id) => _repository.GetInstanceAsync(id);
 
-    public async Task<WorkflowInstance> StartInstanceAsync(StartInstanceRequest request)
+    public async Task<WorkflowInstance> StartInstanceAsync(StartInstanceRequest request, string actor, string? actorRole)
     {
         ValidateRequired(request.Key, nameof(request.Key));
         ValidateRequired(request.Version, nameof(request.Version));
+
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
+        {
+            var existing = await _repository.GetOperationAsync(request.IdempotencyKey, "start");
+            if (existing is not null)
+            {
+                var existingInstance = await _repository.GetInstanceAsync(existing.InstanceId);
+                if (existingInstance is not null) return existingInstance;
+            }
+        }
 
         var definition = await _repository.GetDefinitionByKeyAsync(request.Key, request.Version);
         if (definition is null)
@@ -102,16 +112,44 @@ public class WorkflowService
             From = string.Empty,
             To = instance.Estado,
             Evento = "START",
-            Actor = "system"
+            Actor = actor,
+            ActorRole = actorRole,
+            CorrelationId = request.CorrelationId,
+            IdempotencyKey = request.IdempotencyKey,
+            PayloadSummary = BuildPayloadSummary(request.Datos)
         });
 
         await _repository.SaveInstanceAsync(instance);
+
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
+        {
+            await _repository.SaveOperationAsync(new WorkflowOperation
+            {
+                Id = Guid.NewGuid(),
+                IdempotencyKey = request.IdempotencyKey,
+                Operation = "start",
+                InstanceId = instance.Id,
+                DefinitionKey = instance.Key,
+                Version = instance.Version,
+                Evento = "START",
+                CreatedAt = now
+            });
+        }
         return instance;
     }
 
-    public async Task<WorkflowInstance?> ApplyTransitionAsync(Guid instanceId, TransitionRequest request)
+    public async Task<WorkflowInstance?> ApplyTransitionAsync(Guid instanceId, TransitionRequest request, string actor, string? actorRole)
     {
         ValidateRequired(request.Evento, nameof(request.Evento));
+
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
+        {
+            var existing = await _repository.GetOperationAsync(request.IdempotencyKey, "transition");
+            if (existing is not null)
+            {
+                return await _repository.GetInstanceAsync(existing.InstanceId);
+            }
+        }
 
         var instance = await _repository.GetInstanceAsync(instanceId);
         if (instance is null) return null;
@@ -149,10 +187,29 @@ public class WorkflowService
             From = from,
             To = instance.Estado,
             Evento = transition.Evento,
-            Actor = string.IsNullOrWhiteSpace(request.Actor) ? "system" : request.Actor.Trim()
+            Actor = actor,
+            ActorRole = actorRole,
+            CorrelationId = request.CorrelationId,
+            IdempotencyKey = request.IdempotencyKey,
+            PayloadSummary = BuildPayloadSummary(request.Datos)
         });
 
         await _repository.SaveInstanceAsync(instance);
+
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
+        {
+            await _repository.SaveOperationAsync(new WorkflowOperation
+            {
+                Id = Guid.NewGuid(),
+                IdempotencyKey = request.IdempotencyKey,
+                Operation = "transition",
+                InstanceId = instance.Id,
+                DefinitionKey = instance.Key,
+                Version = instance.Version,
+                Evento = transition.Evento,
+                CreatedAt = instance.UpdatedAt
+            });
+        }
         return instance;
     }
 
@@ -180,5 +237,33 @@ public class WorkflowService
                 throw new ArgumentException("Transiciones inválidas");
             }
         }
+    }
+
+    private static string? BuildPayloadSummary(Dictionary<string, string>? datos)
+    {
+        if (datos is null || datos.Count == 0) return null;
+        var sensitiveKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "diagnostico",
+            "notas",
+            "comentario",
+            "detalle"
+        };
+        var pairs = datos.Select(kvp =>
+        {
+            var value = sensitiveKeys.Contains(kvp.Key) ? "<redacted>" : NormalizeSummaryValue(kvp.Value);
+            return $"{kvp.Key}={value}";
+        }).ToList();
+        var joined = string.Join(";", pairs);
+        const int maxLength = 1000;
+        return joined.Length <= maxLength ? joined : joined.Substring(0, maxLength);
+    }
+
+    private static string NormalizeSummaryValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        const int max = 200;
+        var trimmed = value.Trim();
+        return trimmed.Length <= max ? trimmed : trimmed.Substring(0, max);
     }
 }

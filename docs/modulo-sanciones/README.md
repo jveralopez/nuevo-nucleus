@@ -11,5 +11,10 @@ Modernizar el módulo de Sanciones (disciplinario) para gestionar antecedentes d
 2. **Workflow**: Nucleus WF para procesos disciplinarios (registro, investigación, descargo, resolución, seguimiento).
 3. **Integraciones**: Legajos, Organizació n, Evaluación (impacto en puntajes), Portal Empleado (notificaciones/descargos), Integrations Hub (reportes legales).
 
+## MVP implementado (2026-03-13)
+- Workflow base en Nucleus WF (key `sanciones`, version `1.0.0`).
+- Portal Empleado: descargo por sanción.
+- Portal RH: bandeja de sanciones con acciones resolver/descartar.
+
 ---
 *Blueprint conceptual.*

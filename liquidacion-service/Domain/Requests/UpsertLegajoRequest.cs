@@ -24,7 +24,8 @@ public record UpsertLegajoRequest
     decimal DeduccionesAdicionales,
     int VacacionesDias,
     IReadOnlyCollection<LicenciaRequest>? Licencias,
-    IReadOnlyCollection<EmbargoRequest>? Embargos
+    IReadOnlyCollection<EmbargoRequest>? Embargos,
+    IReadOnlyCollection<EmployerContributionRequest>? ContribucionesPatronales
 );
 
 public record LicenciaRequest(string Tipo, int Dias, bool ConGoce);
@@ -37,4 +38,10 @@ public record EmbargoRequest(
     decimal? MontoPendiente,
     string BaseCalculo,
     bool Activo
+);
+
+public record EmployerContributionRequest(
+    string Concepto,
+    decimal Importe,
+    string? Grupo
 );

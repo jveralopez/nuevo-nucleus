@@ -33,6 +33,13 @@ Base path: `/api/medicina/v1`
 - `POST /licencias/{id}/aprobar`, `POST /licencias/{id}/rechazar`.
 - `POST /licencias/{id}/cerrar` (alta médica).
 
+### Integración con Tiempos
+- Al aprobar licencias médicas se registra ausencia en `tiempos-service` (`POST /ausencias`).
+- Reporte básico: `GET /ausencias/resumen` devuelve resumen por tipo y por legajo.
+
+### Notificaciones
+- Al aprobar o rechazar exámenes médicos se genera notificación en Portal Empleado (via Portal BFF).
+
 ## Proveedores / campañas
 - `GET /proveedores`, `POST /proveedores`.
 - `GET /campanias`, `POST /campanias` (vacunas, chequeos masivos), `POST /campanias/{id}/inscribir`.

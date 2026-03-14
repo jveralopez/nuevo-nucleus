@@ -34,6 +34,9 @@
         <button class="nav-btn" data-view="personal" type="button">Personal</button>
         <button class="nav-btn" data-view="liquidacion" type="button">Liquidación</button>
         <button class="nav-btn" data-view="vacaciones" type="button">Vacaciones</button>
+        <button class="nav-btn" data-view="reclamos" type="button">Reclamos</button>
+        <button class="nav-btn" data-view="sanciones" type="button">Sanciones</button>
+        <button class="nav-btn" data-view="medicina" type="button">Medicina</button>
         <button class="nav-btn" data-view="tiempos" type="button">Tiempos</button>
         <button class="nav-btn" data-view="integraciones" type="button">Integraciones</button>
         <button class="nav-btn" data-view="configuracion" type="button">Configuración</button>
@@ -117,6 +120,12 @@
           <ul id="list-jobs" class="list"></ul>
         </section>
 
+        <section class="card status-card">
+          <h3>Estado servicios</h3>
+          <ul id="list-health" class="status-list"></ul>
+          <p class="hint">Verifica conectividad a APIs base y BFF.</p>
+        </section>
+
         <aside class="card settings">
           <h3>Configuración</h3>
           <label>Auth API
@@ -142,6 +151,9 @@
           </label>
           <label>Configuración API
             <input id="config-url" placeholder="http://localhost:5300" />
+          </label>
+          <label>Tiempos API
+            <input id="tiempos-url" placeholder="http://localhost:5400" />
           </label>
           <p class="hint">Si configurás BFF, el portal usa /api/rh/v1/* para centralizar.</p>
           <label>JWT
@@ -496,35 +508,186 @@
         </section>
       </main>
 
+      <main class="grid hidden" data-view="reclamos">
+        <section class="card">
+          <h3>Reclamos</h3>
+          <ul id="list-reclamos" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Acciones rápidas</h3>
+          <label>Actor<input id="reclamo-actor" placeholder="mesa-ayuda" /></label>
+          <label>Comentario<input id="reclamo-comment" placeholder="Clasificado" /></label>
+          <p class="hint">Usá los botones en la lista para aprobar/rechazar.</p>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="sanciones">
+        <section class="card">
+          <h3>Sanciones</h3>
+          <ul id="list-sanciones" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Acciones rápidas</h3>
+          <label>Actor<input id="sancion-actor" placeholder="rrhh" /></label>
+          <label>Comentario<input id="sancion-comment" placeholder="Resolución" /></label>
+          <p class="hint">Usá los botones en la lista para resolver/descartar.</p>
+        </section>
+      </main>
+
+      <main class="grid hidden" data-view="medicina">
+        <section class="card">
+          <h3>Estadísticas Medicina Laboral</h3>
+          <div id="medicina-estadisticas" class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Exámenes Aprobados</span>
+              <span class="stat-value" id="stat-examenes-aprobados">-</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Exámenes Pendientes</span>
+              <span class="stat-value" id="stat-examenes-pendientes">-</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Licencias Aprobadas</span>
+              <span class="stat-value" id="stat-licencias-aprobadas">-</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Licencias Pendientes</span>
+              <span class="stat-value" id="stat-licencias-pendientes">-</span>
+            </div>
+          </div>
+          <button id="btn-refresh-medicina-stats" class="btn">Actualizar estadísticas</button>
+        </section>
+        <section class="card">
+          <h3>Alertas automáticas</h3>
+          <ul id="list-medicina-alertas" class="list alertas-list"></ul>
+          <p class="hint" id="medicina-alertas-hint">Sin alertas.</p>
+        </section>
+        <section class="card">
+          <h3>Exámenes médicos</h3>
+          <ul id="list-medicina-examen" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Licencias médicas</h3>
+          <ul id="list-medicina-licencia" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Resumen ausencias médicas</h3>
+          <p class="hint">Top 10 legajos por días de ausencia.</p>
+          <form id="form-ausencias-resumen" class="form inline">
+            <label>Desde<input name="desde" type="date" /></label>
+            <label>Hasta<input name="hasta" type="date" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+          <ul id="list-ausencias-resumen" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Acciones rápidas</h3>
+          <label>Actor<input id="medicina-actor" placeholder="medico" /></label>
+          <label>Comentario<input id="medicina-comment" placeholder="Apto" /></label>
+          <p class="hint">Usá los botones para aprobar/rechazar solicitudes.</p>
+        </section>
+      </main>
+
       <main class="grid hidden" data-view="tiempos">
         <section class="card">
-          <h3>Templates de integración</h3>
-          <ul id="list-templates" class="list"></ul>
+          <h3>Turnos</h3>
+          <ul id="list-turnos" class="list"></ul>
         </section>
         <section class="card">
-          <h3>Iniciar exporte de horas</h3>
-          <form id="form-tiempo-export" class="form">
-            <label>Template
-              <select name="templateId" id="select-template" required></select>
-            </label>
-            <label>Periodo<input name="periodo" placeholder="2026-06" /></label>
-            <label>Trigger<input name="trigger" placeholder="horas" required /></label>
-            <button type="submit" class="btn">Iniciar job</button>
+          <h3>Nuevo turno</h3>
+          <form id="form-turno" class="form">
+            <label>Código<input name="codigo" required /></label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Hora inicio<input name="horaInicio" type="time" required /></label>
+            <label>Hora fin<input name="horaFin" type="time" required /></label>
+            <label>Tolerancia (min)<input name="toleranciaMinutos" type="number" min="0" value="0" /></label>
+            <label>Activo<input name="activo" placeholder="true" /></label>
+            <button type="submit" class="btn">Crear</button>
           </form>
         </section>
         <section class="card">
-          <h3>Jobs de exporte</h3>
-          <ul id="list-jobs-tiempo" class="list"></ul>
+          <h3>Actualizar turno</h3>
+          <form id="form-turno-edit" class="form">
+            <label>Turno
+              <select name="turnoId" id="select-turno-horario-edit" required></select>
+            </label>
+            <label>Código<input name="codigo" required /></label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Hora inicio<input name="horaInicio" type="time" required /></label>
+            <label>Hora fin<input name="horaFin" type="time" required /></label>
+            <label>Tolerancia (min)<input name="toleranciaMinutos" type="number" min="0" value="0" /></label>
+            <label>Activo<input name="activo" placeholder="true" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
         </section>
         <section class="card">
-          <h3>Detalle de job</h3>
-          <form id="form-job-detalle" class="form">
-            <label>Job
-              <select name="jobId" id="select-job" required></select>
+          <h3>Horarios</h3>
+          <ul id="list-horarios" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Nuevo horario</h3>
+          <form id="form-horario" class="form">
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Días semana<input name="diasSemana" placeholder="Lun,Mar,Mie" required /></label>
+            <label>Turno
+              <select name="turnoId" id="select-turno" required></select>
             </label>
-            <button type="submit" class="btn">Ver detalle</button>
+            <label>Activo<input name="activo" placeholder="true" /></label>
+            <button type="submit" class="btn">Crear</button>
           </form>
-          <div id="detalle-job" class="list"></div>
+        </section>
+        <section class="card">
+          <h3>Actualizar horario</h3>
+          <form id="form-horario-edit" class="form">
+            <label>Horario
+              <select name="horarioId" id="select-horario-edit" required></select>
+            </label>
+            <label>Nombre<input name="nombre" required /></label>
+            <label>Días semana<input name="diasSemana" required /></label>
+            <label>Turno
+              <select name="turnoId" id="select-turno-edit" required></select>
+            </label>
+            <label>Activo<input name="activo" placeholder="true" /></label>
+            <button type="submit" class="btn">Actualizar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Fichadas recientes</h3>
+          <ul id="list-fichadas" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Registrar fichada</h3>
+          <form id="form-fichada" class="form">
+            <label>Legajo
+              <select name="legajoId" id="select-legajo-fichada" required></select>
+            </label>
+            <label>Fecha/hora<input name="fechaHora" type="datetime-local" required /></label>
+            <label>Tipo<input name="tipo" placeholder="Entrada" required /></label>
+            <label>Origen<input name="origen" placeholder="Terminal" required /></label>
+            <label>Observaciones<input name="observaciones" /></label>
+            <button type="submit" class="btn">Registrar</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Planillas</h3>
+          <ul id="list-planillas" class="list"></ul>
+        </section>
+        <section class="card">
+          <h3>Crear planilla</h3>
+          <form id="form-planilla" class="form">
+            <label>Periodo<input name="periodo" placeholder="2026-06" required /></label>
+            <label>Empresa
+              <select name="empresaId" id="select-empresa-planilla" required></select>
+            </label>
+            <label>Legajo
+              <select name="legajoId" id="select-legajo-planilla" required></select>
+            </label>
+            <label>Horas normales<input name="horasNormales" type="number" step="0.01" value="0" /></label>
+            <label>Horas extra<input name="horasExtra" type="number" step="0.01" value="0" /></label>
+            <label>Horas ausencia<input name="horasAusencia" type="number" step="0.01" value="0" /></label>
+            <label>Observaciones<input name="observaciones" /></label>
+            <button type="submit" class="btn">Generar</button>
+          </form>
         </section>
       </main>
 

@@ -18,6 +18,7 @@ Modernizar el “Portal Empleado” descrito en `docs/10_portal_empleado.md` y a
 ## MVP implementado
 - UI estática en `portal-empleado-ui/` con login JWT, consulta de liquidaciones y detalle de recibos.
 - Workflows autoservicio: carga de definiciones demo y solicitudes (vacaciones, datos personales, reclamos).
+- Medicina laboral: solicitudes de examen y licencia médica.
 - BFF MVP en `portal-bff-service/` con `/api/portal/v1/home` y `/api/portal/v1/liquidacion`.
 - Notificaciones en dashboard generadas desde liquidaciones e instancias WF.
 - Descarga local de recibos en JSON/CSV.

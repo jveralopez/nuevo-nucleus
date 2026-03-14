@@ -21,6 +21,11 @@ public class PayrollDbContext : DbContext
             {
                 legajo.WithOwner().HasForeignKey("PayrollRunId");
                 legajo.HasKey(l => l.Id);
+                legajo.OwnsMany(l => l.ContribucionesPatronales, contrib =>
+                {
+                    contrib.WithOwner().HasForeignKey("LegajoEnLoteId");
+                    contrib.HasKey("Id");
+                });
                 legajo.OwnsMany(l => l.Licencias, licencia =>
                 {
                     licencia.WithOwner().HasForeignKey("LegajoEnLoteId");
@@ -40,6 +45,11 @@ public class PayrollDbContext : DbContext
                 {
                     detalle.WithOwner().HasForeignKey("PayrollReceiptId");
                     detalle.HasKey("Id");
+                });
+                recibo.OwnsMany(r => r.ContribucionesPatronales, contrib =>
+                {
+                    contrib.WithOwner().HasForeignKey("PayrollReceiptId");
+                    contrib.HasKey("Id");
                 });
             });
         });

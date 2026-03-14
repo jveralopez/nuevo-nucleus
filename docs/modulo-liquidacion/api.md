@@ -6,7 +6,7 @@ Base URL por defecto: `http://localhost:5188` (configurable vía `ASPNETCORE_URL
 - `PayrollRun`: `{ id, periodo, tipo, estado, createdAt, updatedAt, legajos: [], recibos: [] }`
 - `Legajo`: `{ id, numero, nombre, cuil, basico, antiguedad, adicionales, descuentos }`
 - `Legajo`: `{ id, numero, nombre, cuil, convenio, categoria, basico, antiguedad, adicionales, presentismo, horasExtra, premios, descuentos, noRemunerativo, bonosNoRemunerativos, aplicaGanancias, conyugeACargo, cantHijos, cantOtrosFamiliares, deduccionesAdicionales, vacacionesDias, licencias[], embargos[] }`
-- `Recibo`: `{ id, payrollRunId, legajoId, remunerativo, deducciones, neto, detalle[] }`
+- `Recibo`: `{ id, payrollRunId, legajoId, remunerativo, deducciones, neto, contribucionesPatronalesTotal, detalle[], contribucionesPatronales[] }`
 
 ## Endpoints
 
@@ -55,7 +55,11 @@ Agrega un legajo al lote.
   "deduccionesAdicionales": 0,
   "vacacionesDias": 0,
   "licencias": [],
-  "embargos": []
+  "embargos": [],
+  "contribucionesPatronales": [
+    { "concepto": "SIPA", "importe": 12000, "grupo": "Seguridad Social" },
+    { "concepto": "INSSJP", "importe": 3000, "grupo": "Seguridad Social" }
+  ]
 }
 ```
 

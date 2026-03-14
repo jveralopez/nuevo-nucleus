@@ -96,6 +96,7 @@ public class PayrollServiceTests
             DeduccionesAdicionales: 0,
             VacacionesDias: 0,
             Licencias: null,
-            Embargos: null);
+            Embargos: null,
+            ContribucionesPatronales: null);
     }
 }

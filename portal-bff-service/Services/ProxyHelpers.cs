@@ -14,6 +14,16 @@ public static class ProxyHelpers
             proxyRequest.Headers.Authorization = AuthenticationHeaderValue.Parse(token.ToString());
         }
 
+        if (request.Headers.TryGetValue("X-Correlation-Id", out var correlationId))
+        {
+            proxyRequest.Headers.TryAddWithoutValidation("X-Correlation-Id", correlationId.ToString());
+        }
+
+        if (request.Headers.TryGetValue("Idempotency-Key", out var idempotencyKey))
+        {
+            proxyRequest.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey.ToString());
+        }
+
         if (request.ContentLength is > 0)
         {
             proxyRequest.Content = new StreamContent(request.Body);

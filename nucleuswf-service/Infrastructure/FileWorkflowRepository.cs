@@ -141,6 +141,37 @@ public class FileWorkflowRepository : IWorkflowRepository
         }
     }
 
+    public async Task<WorkflowOperation?> GetOperationAsync(string idempotencyKey, string operation)
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            var store = await LoadAsync();
+            return store.Operations.FirstOrDefault(o =>
+                string.Equals(o.IdempotencyKey, idempotencyKey, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(o.Operation, operation, StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public async Task SaveOperationAsync(WorkflowOperation operation)
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            var store = await LoadAsync();
+            store.Operations.Add(operation);
+            await PersistAsync(store);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
     private async Task<WorkflowStore> LoadAsync()
     {
         if (!File.Exists(_dbPath))

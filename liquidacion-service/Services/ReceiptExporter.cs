@@ -69,10 +69,10 @@ public class ReceiptExporter
     private static string BuildCsv(PayrollRun payroll)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Legajo,Nombre,Remunerativo,Deducciones,Neto");
+        sb.AppendLine("Legajo,Nombre,Remunerativo,Deducciones,Neto,ContribucionesPatronales");
         foreach (var recibo in payroll.Recibos)
         {
-            sb.AppendLine($"{recibo.LegajoNumero},{recibo.LegajoNombre},{recibo.Remunerativo:F2},{recibo.Deducciones:F2},{recibo.Neto:F2}");
+            sb.AppendLine($"{recibo.LegajoNumero},{recibo.LegajoNombre},{recibo.Remunerativo:F2},{recibo.Deducciones:F2},{recibo.Neto:F2},{recibo.ContribucionesPatronalesTotal:F2}");
         }
         return sb.ToString();
     }

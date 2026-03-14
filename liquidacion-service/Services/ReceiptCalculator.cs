@@ -102,6 +102,10 @@ public class ReceiptCalculator
         }
 
         var neto = Math.Max(0m, remunerativo - deducciones + noRemunerativo);
+        var contribuciones = (legajo.ContribucionesPatronales ?? new List<LegajoEmployerContribution>())
+            .Select(c => new EmployerContribution(c.Concepto, c.Importe, c.Grupo))
+            .ToList();
+        var contribucionesTotal = contribuciones.Sum(c => c.Importe);
 
         return new PayrollReceipt
         {
@@ -112,6 +116,8 @@ public class ReceiptCalculator
             Remunerativo = Math.Round(Math.Max(remunerativo, 0), 2, MidpointRounding.AwayFromZero),
             Deducciones = Math.Round(Math.Max(deducciones, 0), 2, MidpointRounding.AwayFromZero),
             Neto = Math.Round(neto, 2, MidpointRounding.AwayFromZero),
+            ContribucionesPatronalesTotal = Math.Round(Math.Max(contribucionesTotal, 0), 2, MidpointRounding.AwayFromZero),
+            ContribucionesPatronales = contribuciones,
             Detalle = detalle
         };
     }

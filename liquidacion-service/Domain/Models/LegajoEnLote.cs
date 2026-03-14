@@ -28,6 +28,7 @@ public class LegajoEnLote
     public int VacacionesDias { get; init; }
     public List<LicenciaEnLote> Licencias { get; init; } = new();
     public List<Embargo> Embargos { get; init; } = new();
+    public List<LegajoEmployerContribution> ContribucionesPatronales { get; init; } = new();
 
     public static LegajoEnLote FromRequest(UpsertLegajoRequest request) => new()
     {
@@ -67,6 +68,13 @@ public class LegajoEnLote
             MontoPendiente = e.MontoPendiente,
             BaseCalculo = e.BaseCalculo,
             Activo = e.Activo
-        }).ToList() ?? new List<Embargo>()
+        }).ToList() ?? new List<Embargo>(),
+        ContribucionesPatronales = request.ContribucionesPatronales?.Select(c =>
+            new LegajoEmployerContribution
+            {
+                Concepto = c.Concepto,
+                Importe = c.Importe,
+                Grupo = c.Grupo
+            }).ToList() ?? new List<LegajoEmployerContribution>()
     };
 }

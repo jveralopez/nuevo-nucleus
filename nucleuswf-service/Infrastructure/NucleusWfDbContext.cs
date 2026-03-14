@@ -15,6 +15,7 @@ public class NucleusWfDbContext : DbContext
 
     public DbSet<WorkflowDefinition> Definitions => Set<WorkflowDefinition>();
     public DbSet<WorkflowInstance> Instances => Set<WorkflowInstance>();
+    public DbSet<WorkflowOperation> Operations => Set<WorkflowOperation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,12 @@ public class NucleusWfDbContext : DbContext
                 hist.WithOwner().HasForeignKey("WorkflowInstanceId");
                 hist.HasKey("WorkflowInstanceId", "Timestamp", "Evento");
             });
+        });
+
+        modelBuilder.Entity<WorkflowOperation>(entity =>
+        {
+            entity.HasKey(o => o.Id);
+            entity.HasIndex(o => new { o.IdempotencyKey, o.Operation }).IsUnique();
         });
     }
 }

@@ -239,6 +239,7 @@ public class BffNotificationsApiTests : IClassFixture<BffNotificationsApiTests.T
             Environment.SetEnvironmentVariable("Auth__SigningKey", TestSigningKey);
             Environment.SetEnvironmentVariable("Portal__LiquidacionApi", LiquidacionBase);
             Environment.SetEnvironmentVariable("Portal__WfApi", WfBase);
+            Environment.SetEnvironmentVariable("Portal__TiemposApi", "https://tiempos.local");
         }
 
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
@@ -396,6 +397,53 @@ public class BffNotificationsApiTests : IClassFixture<BffNotificationsApiTests.T
             {
                 var payload = "[{\"id\":\"00000000-0000-0000-0000-000000000011\",\"numero\":\"100\"}]";
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(payload, Encoding.UTF8, "application/json")
+                });
+            }
+
+            if (path.EndsWith("/turnos", StringComparison.OrdinalIgnoreCase))
+            {
+                if (request.Method == HttpMethod.Post)
+                {
+                    var payload = "{\"id\":\"00000000-0000-0000-0000-000000000061\",\"codigo\":\"TUR-01\",\"nombre\":\"Diurno\"}";
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Created)
+                    {
+                        Content = new StringContent(payload, Encoding.UTF8, "application/json")
+                    });
+                }
+
+                var listPayload = "[{\"id\":\"00000000-0000-0000-0000-000000000061\",\"codigo\":\"TUR-01\",\"nombre\":\"Diurno\"}]";
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(listPayload, Encoding.UTF8, "application/json")
+                });
+            }
+
+            if (path.Contains("/horarios", StringComparison.OrdinalIgnoreCase))
+            {
+                var payload = "[{\"id\":\"00000000-0000-0000-0000-000000000062\",\"nombre\":\"Semana\",\"diasSemana\":\"Lun-Vie\"}]";
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(payload, Encoding.UTF8, "application/json")
+                });
+            }
+
+            if (path.Contains("/fichadas", StringComparison.OrdinalIgnoreCase))
+            {
+                var payload = "[{\"id\":\"00000000-0000-0000-0000-000000000063\",\"tipo\":\"Entrada\",\"origen\":\"terminal\"}]";
+                var status = request.Method == HttpMethod.Post ? HttpStatusCode.Created : HttpStatusCode.OK;
+                return Task.FromResult(new HttpResponseMessage(status)
+                {
+                    Content = new StringContent(payload, Encoding.UTF8, "application/json")
+                });
+            }
+
+            if (path.Contains("/planillas", StringComparison.OrdinalIgnoreCase))
+            {
+                var payload = "[{\"id\":\"00000000-0000-0000-0000-000000000064\",\"periodo\":\"2026-02\",\"estado\":\"Borrador\"}]";
+                var status = request.Method == HttpMethod.Post ? HttpStatusCode.Created : HttpStatusCode.OK;
+                return Task.FromResult(new HttpResponseMessage(status)
                 {
                     Content = new StringContent(payload, Encoding.UTF8, "application/json")
                 });

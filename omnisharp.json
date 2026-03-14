@@ -1,0 +1,5 @@
+{
+  "msbuild": {
+    "solution": "nuevo-nucleus.sln"
+  }
+}

@@ -43,4 +43,14 @@ public class EfWorkflowRepository : IWorkflowRepository
         else _db.Instances.Add(instance);
         await _db.SaveChangesAsync();
     }
+
+    public async Task<WorkflowOperation?> GetOperationAsync(string idempotencyKey, string operation) =>
+        await _db.Operations.AsNoTracking()
+            .FirstOrDefaultAsync(o => o.IdempotencyKey == idempotencyKey && o.Operation == operation);
+
+    public async Task SaveOperationAsync(WorkflowOperation operation)
+    {
+        _db.Operations.Add(operation);
+        await _db.SaveChangesAsync();
+    }
 }

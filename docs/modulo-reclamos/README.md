@@ -34,5 +34,10 @@ flowchart LR
 - Maqueta UI (actualización en `maqueta_portal.html`).
 - En etapas futuras, código `reclamos-service` y `reclamos-ui`.
 
+## MVP implementado (2026-03-13)
+- Workflow base en Nucleus WF (key `reclamos`, version `1.0.0`).
+- Portal Empleado: envío de reclamos y visualización de solicitudes.
+- Portal RH: bandeja de reclamos con acciones aprobar/rechazar.
+
 ---
 *Generado el 2026-03-09 a partir de `Workflow/.../Reclamo.WF.xml` y `Class/NucleusRH/Base/QuejasyReclamos/lib_v11.*`.*

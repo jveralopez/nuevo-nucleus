@@ -152,7 +152,8 @@ public class LiquidacionExportsApiTests : IClassFixture<LiquidacionExportsApiTes
             DeduccionesAdicionales: 0,
             VacacionesDias: 0,
             Licencias: null,
-            Embargos: null);
+            Embargos: null,
+            ContribucionesPatronales: null);
     }
 
     private sealed class PayrollResponse

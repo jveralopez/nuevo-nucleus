@@ -27,6 +27,7 @@ jobs:
           dotnet restore integration-hub-service/integration-hub-service.csproj
           dotnet restore nucleuswf-service/nucleuswf-service.csproj
           dotnet restore portal-bff-service/portal-bff-service.csproj
+          dotnet restore tiempos-service/tiempos-service.csproj
           dotnet restore organizacion-service.Tests/organizacion-service.Tests.csproj
           dotnet restore personal-service.Tests/personal-service.Tests.csproj
           dotnet restore integration-hub-service.Tests/integration-hub-service.Tests.csproj
@@ -43,6 +44,7 @@ jobs:
           dotnet build integration-hub-service/integration-hub-service.csproj --configuration Release --no-restore
           dotnet build nucleuswf-service/nucleuswf-service.csproj --configuration Release --no-restore
           dotnet build portal-bff-service/portal-bff-service.csproj --configuration Release --no-restore
+          dotnet build tiempos-service/tiempos-service.csproj --configuration Release --no-restore
 
       - name: Test
         run: |

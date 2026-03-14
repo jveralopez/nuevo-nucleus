@@ -1,0 +1,49 @@
+name: jira-sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      sprint:
+        description: 'Sprint key (e.g. KAN-42)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Dry run mode'
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches: ["main", "master"]
+    paths:
+      - 'docs/reportes/**'
+
+jobs:
+  sync-reports:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Sync reports to Jira
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+          JIRA_PROJECT: KAN
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+            python tools/jira_sync_reports.py --dry-run --sprint "${{ github.event.inputs.sprint }}"
+          elif [ -n "${{ github.event.inputs.sprint }}" ]; then
+            python tools/jira_sync_reports.py --sprint "${{ github.event.inputs.sprint }}"
+          else
+            python tools/jira_sync_reports.py
+          fi
+
+      - name: Report Results
+        if: always()
+        run: |
+          echo "Sync completed. Check Jira board: https://jonatanmveralopez.atlassian.net/board/KAN"

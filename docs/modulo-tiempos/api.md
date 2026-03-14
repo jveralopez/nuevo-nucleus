@@ -1,73 +1,49 @@
-# API propuesta · Tiempos Trabajados
+# API implementada · Tiempos Trabajados
 
 ## Ingesta de fichadas
 - `POST /fichadas`
 ```json
 {
-  "legajoId": "LEG-001",
-  "terminalId": "TERM-07",
-  "evento": "ENTRADA",
-  "timestamp": "2026-03-09T08:01:12Z",
-  "fuente": "terminal"
+  "legajoId": "00000000-0000-0000-0000-000000000011",
+  "fechaHora": "2026-03-09T08:01:12Z",
+  "tipo": "Entrada",
+  "origen": "terminal",
+  "observaciones": "Ingreso normal"
 }
 ```
-- `POST /fichadas/import`
-  - acepta CSV/JSON para cargas masivas (similar a `FichadasIng.Archivo`).
-- `GET /fichadas?legajoId=&fechaDesde=&fechaHasta=&estado=`.
-- `PATCH /fichadas/{id}` para correcciones (auditable).
+- `GET /fichadas?legajoId=&desde=&hasta=`
+- `GET /fichadas/{id}`
+- `PATCH /fichadas/{id}` para correcciones.
 
 ## Horarios / turnos
-- `GET /turnos`, `POST /turnos` (estructura de tramos horarios, descansos).
-- `POST /horarios/asignaciones`
-```json
-{
-  "legajoId": "LEG-001",
-  "turnoId": "TURNO-NOCHE",
-  "fechaDesde": "2026-03-01",
-  "fechaHasta": "2026-03-31",
-  "observaciones": "Cobertura nocturna"
-}
-```
-- `POST /planillas/cambios-turno` (sube CSV -> procesa asíncronamente).
+- `GET /turnos`, `POST /turnos`, `PUT /turnos/{id}`, `DELETE /turnos/{id}`.
+- `GET /horarios`, `POST /horarios`, `PUT /horarios/{id}`, `DELETE /horarios/{id}`.
 
-## Novedades / licencias
-- `POST /novedades` (single) y `POST /novedades/import` (planilla según rol).
-- `GET /novedades?legajoId=&estado=`.
-
-## Procesamientos
-- `POST /procesamientos`
+## Planillas
+- `GET /planillas?periodo=&empresaId=`
+- `POST /planillas`
 ```json
 {
   "periodo": "2026-02",
-  "descripcion": "Horas Febrero",
-  "criterios": {
-    "empresaId": "EMP01",
-    "legajos": ["LEG-001", "LEG-014"],
-    "incluirNovedades": true
-  }
+  "empresaId": "00000000-0000-0000-0000-000000000010",
+  "detalles": [
+    {
+      "legajoId": "00000000-0000-0000-0000-000000000011",
+      "horasNormales": 160,
+      "horasExtra": 10,
+      "horasAusencia": 2,
+      "observaciones": "Planilla demo"
+    }
+  ]
 }
 ```
-- `GET /procesamientos/{id}` → estado (`Draft`, `Calculando`, `Procesado`, `Exportado`).
-- `POST /procesamientos/{id}/recalcular`.
-- `GET /procesamientos/{id}/legajos/{legajoId}` → detalle de horas/conceptos.
-- `GET /procesamientos/{id}/export?format=csv` → exporte tipo `ArchivoHoras`.
-
-## Francos / banco de horas
-- `GET /compensatorios?legajoId=`, `POST /compensatorios/movimientos`.
-- `POST /compensatorios/{id}/aprobar` / `rechazar`.
-
-## Catalogos / configuración
-- `GET /catalogos/tipos-hora`, `GET /catalogos/tipos-novedad`, `GET /catalogos/terminales`.
-
-## Eventos (Service Bus/Kafka)
-- `FichadaRegistrada`, `FichadaCorregida`.
-- `HorarioAsignado`, `HorarioActualizado`.
-- `ProcesamientoCompletado` (payload incluye lista de legajos y resumen de conceptos).
-- `CompensatorioGenerado`.
+- `GET /planillas/{id}`
+- `POST /planillas/{id}/cerrar`
 
 ## Seguridad
-- OAuth2/OIDC con scopes `tiempos.read`, `tiempos.write`, `tiempos.process`.
-- Auditoría: cada modificación registra usuario, timestamp, origen (manual/terminal/batch).
+- JWT emitido por `auth-service`.
+- Lecturas: usuario autenticado.
+- Escrituras: rol `Admin`.
 
 ---
-*Basado en procesos descritos en `TTA.menu.xml` y el exporte `ArchivoHoras.XML`.*
+*Los endpoints avanzados (procesamientos, novedades, exportes) quedan para una fase siguiente.*

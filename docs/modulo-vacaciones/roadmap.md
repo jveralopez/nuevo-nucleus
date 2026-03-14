@@ -5,17 +5,17 @@
 - [x] Definir arquitectura y API moderna.
 
 ## Fase 1 · Backend básico
-- [ ] Implementar `vacaciones-service` con saldos y solicitudes (almacenamiento base JSON/SQL ligth).
-- [ ] Integrar con Legajos para datos del empleado y saldo inicial.
-- [ ] Exponer simulador de saldo + validaciones.
+- [x] Implementar `vacaciones-service` con saldos y solicitudes (almacenamiento base JSON/SQL ligth).
+- [x] Integrar con Legajos para datos del empleado y saldo inicial.
+- [x] Exponer simulador de saldo + validaciones.
 
 ## Fase 2 · Workflow y aprobaciones
-- [ ] Migrar workflow a Nucleus WF (Temporal/Durable) con etapas configurables.
-- [ ] Bandeja de aprobaciones, notificaciones y delegaciones.
-- [ ] Integración con Tiempos (bloqueo) y Liquidación (eventos) automática.
+- [x] Migrar workflow a Nucleus WF (Temporal/Durable) con etapas configurables.
+- [x] Bandeja de aprobaciones, notificaciones y delegaciones.
+- [x] Integración con Tiempos (bloqueo) y Liquidación (eventos) automática.
 
 ## Fase 3 · Experiencia de usuario
-- [ ] UI portal empleado (calendario, historial, simulador, estado) y UI aprobador.
+- [x] UI portal empleado (calendario, historial, simulador, estado) y UI aprobador.
 - [ ] Mobile-ready + notificaciones push/email.
 - [ ] Políticas multi-país / multi-empresa.
 

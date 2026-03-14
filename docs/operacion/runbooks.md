@@ -43,3 +43,21 @@
 3. Probar login y una llamada protegida con JWT.
 4. Probar flujo basico de Portal RH (listar empresas y organigrama).
 5. Confirmar logs sin errores criticos.
+
+## RB-07 · E2E Playwright
+**Sintoma:** validar portal RH/Empleado con flujo base.
+**Acciones:**
+1. Levantar docker compose prod.
+2. Servir UIs en `http://localhost:3001` y `http://localhost:3002`.
+3. Ejecutar `npm run test:e2e`.
+4. Alternativa rápida: ejecutar `start-e2e.ps1` en el root.
+
+## RB-08 · Idempotencia y correlación (WF)
+**Sintoma:** transiciones duplicadas o auditoría incompleta.
+**Acciones:**
+1. Enviar `Idempotency-Key` único por operación (start/transition).
+2. Enviar `X-Correlation-Id` por request para trazabilidad.
+3. Verificar que el historial de la instancia guarda actor, rol y correlation.
+4. El Portal BFF ya inyecta ambos headers si no vienen en la solicitud.
+5. Servicios core también generan headers si están ausentes.
+6. Campos sensibles (diagnóstico/notas/detalle) se redactan en el resumen de auditoría.

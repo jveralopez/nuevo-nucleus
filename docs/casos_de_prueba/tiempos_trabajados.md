@@ -44,9 +44,9 @@
   1. Ejecutar `POST /planillas/{id}/cerrar`.
 - **Resultado esperado**: Planilla cerrada.
 
-## CT-TT-07 Exportar planilla
+## CT-TT-07 Exportar planilla (fase siguiente)
 - **Relacion**: CU-TT-07
 - **Precondiciones**: Planilla cerrada.
 - **Pasos**:
-  1. Ejecutar `POST /planillas/{id}/exportar`.
+  1. Pendiente de implementar.
 - **Resultado esperado**: Exporte generado.

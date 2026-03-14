@@ -50,11 +50,10 @@
   1. El actor ejecuta `POST /planillas/{id}/cerrar`.
 - **Postcondicion**: Planilla cerrada.
 
-## CU-TT-07 Exportar horas a Liquidacion
+## CU-TT-07 Exportar horas a Liquidacion (fase siguiente)
 - **Actor**: RRHH Admin
 - **Objetivo**: Enviar planilla a Liquidacion.
 - **Precondiciones**: Planilla cerrada.
 - **Flujo principal**:
-  1. El actor ejecuta `POST /planillas/{id}/exportar`.
-  2. El sistema registra exporte.
+  1. Pendiente de implementar.
 - **Postcondicion**: Exporte disponible.

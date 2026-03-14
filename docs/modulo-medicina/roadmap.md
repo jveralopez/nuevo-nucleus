@@ -9,14 +9,15 @@
 - [ ] Configurar almacenamiento seguro para documentos médicos.
 
 ## Fase 2 · Workflow y portales
-- [ ] Migrar procesos a Nucleus WF (agenda, resultados, licencias, altas).
-- [ ] UI para equipo médico y autoservicio para empleados (subir certificados, ver resultados).
-- [ ] Integrar con Tiempos (ausencias), Portal Empleado, notificaciones.
+- [x] Migrar procesos a Nucleus WF (agenda, resultados, licencias, altas).
+- [x] UI para equipo médico y autoservicio para empleados (solicitar examen/licencia, aprobar/rechazar).
+- [x] Integrar con Tiempos (ausencias) en aprobación de licencias.
+- [ ] Notificaciones integradas en Portal Empleado.
 
 ## Fase 3 · Integraciones y reporting
 - [ ] Conectores con ART/aseguradoras, ministerios, BI.
-- [ ] KPIs de salud, campañas, compliance legal.
-- [ ] Alertas automáticas (aptos vencidos, licencias extensas).
+- [x] KPIs de salud, campañas, compliance legal.
+- [x] Alertas automáticas (aptos vencidos, licencias extensas).
 
 ## Fase 4 · Seguridad y analytics avanzados
 - [ ] Controles de privacidad (consentimiento, masking), auditoría granular.

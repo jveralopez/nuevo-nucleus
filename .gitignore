@@ -10,6 +10,8 @@
 artifacts/
 artifactse2e/
 **/*.log
+playwright-report/
+test-results/
 
 # Databases and local state
 **/*.db
@@ -22,3 +24,4 @@ artifactse2e/
 # OS / tooling
 .DS_Store
 Thumbs.db
+node_modules/

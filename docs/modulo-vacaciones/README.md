@@ -18,5 +18,8 @@ Relevar y modernizar el flujo de solicitudes de vacaciones de Nucleus RH 23.01 (
 - Portal Empleado inicia solicitudes vía Nucleus WF.
 - Portal RH visualiza y aprueba/rechaza instancias de vacaciones.
 
+## Estado (2026-03-13)
+- Flujo validado end-to-end con Portal Empleado/RH y Nucleus WF.
+
 ---
 *Fuentes: `Workflow/NucleusRH/Base/Vacaciones/Solicitud.WF.xml`, `Class/NucleusRH/Base/Vacaciones/lib_v11.*`, `docs/03_flujos_y_workflows.md`.*

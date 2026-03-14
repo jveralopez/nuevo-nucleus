@@ -176,6 +176,35 @@ namespace liquidacionservice.Migrations
                                         .HasForeignKey("LegajoEnLoteId");
                                 });
 
+                            b1.OwnsMany("LiquidacionService.Domain.Models.LegajoEmployerContribution", "ContribucionesPatronales", b2 =>
+                                {
+                                    b2.Property<Guid>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("Concepto")
+                                        .IsRequired()
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("Grupo")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<decimal>("Importe")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<Guid>("LegajoEnLoteId")
+                                        .HasColumnType("TEXT");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("LegajoEnLoteId");
+
+                                    b2.ToTable("LegajoEmployerContribution");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("LegajoEnLoteId");
+                                });
+
                             b1.OwnsMany("LiquidacionService.Domain.Models.LicenciaEnLote", "Licencias", b2 =>
                                 {
                                     b2.Property<Guid>("Id")
@@ -205,6 +234,8 @@ namespace liquidacionservice.Migrations
                                         .HasForeignKey("LegajoEnLoteId");
                                 });
 
+                            b1.Navigation("ContribucionesPatronales");
+
                             b1.Navigation("Embargos");
 
                             b1.Navigation("Licencias");
@@ -214,6 +245,9 @@ namespace liquidacionservice.Migrations
                         {
                             b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<decimal>("ContribucionesPatronalesTotal")
                                 .HasColumnType("TEXT");
 
                             b1.Property<decimal>("Deducciones")
@@ -251,6 +285,35 @@ namespace liquidacionservice.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("PayrollRunId");
 
+                            b1.OwnsMany("LiquidacionService.Domain.Models.EmployerContribution", "ContribucionesPatronales", b2 =>
+                                {
+                                    b2.Property<Guid>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("Concepto")
+                                        .IsRequired()
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("Grupo")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<decimal>("Importe")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<Guid>("PayrollReceiptId")
+                                        .HasColumnType("TEXT");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("PayrollReceiptId");
+
+                                    b2.ToTable("EmployerContribution");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("PayrollReceiptId");
+                                });
+
                             b1.OwnsMany("LiquidacionService.Domain.Models.ReceiptDetail", "Detalle", b2 =>
                                 {
                                     b2.Property<Guid>("Id")
@@ -276,6 +339,8 @@ namespace liquidacionservice.Migrations
                                     b2.WithOwner()
                                         .HasForeignKey("PayrollReceiptId");
                                 });
+
+                            b1.Navigation("ContribucionesPatronales");
 
                             b1.Navigation("Detalle");
                         });

@@ -7,6 +7,7 @@ const KEYS = {
   wf: "rh_wf_url",
   bff: "rh_bff_url",
   config: "rh_config_url",
+  tiempos: "rh_tiempos_url",
   token: "rh_token",
 };
 
@@ -24,6 +25,7 @@ const state = {
   wfUrl: localStorage.getItem(KEYS.wf) || "http://localhost:5051",
   bffUrl: localStorage.getItem(KEYS.bff) || "http://localhost:5090",
   configUrl: localStorage.getItem(KEYS.config) || "http://localhost:5300",
+  tiemposUrl: localStorage.getItem(KEYS.tiempos) || "http://localhost:5400",
   token: normalizeToken(storedToken),
   empresas: [],
   unidades: [],
@@ -37,6 +39,10 @@ const state = {
   convenios: [],
   catalogos: [],
   parametros: [],
+  turnos: [],
+  horarios: [],
+  fichadas: [],
+  planillas: [],
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -56,6 +62,7 @@ el("hub-url").value = state.hubUrl;
 el("wf-url").value = state.wfUrl;
 el("bff-url").value = state.bffUrl;
 el("config-url").value = state.configUrl;
+el("tiempos-url").value = state.tiemposUrl;
 el("token").value = state.token;
 
 function getOrgBase() {
@@ -83,9 +90,19 @@ function getWfBase() {
   return state.wfUrl.replace(/\/$/, "");
 }
 
+function getMedicinaBase() {
+  if (state.bffUrl) return `${state.bffUrl.replace(/\/$/, "")}/api/rh/v1/medicina`;
+  return `${state.wfUrl.replace(/\/$/, "")}/medicina`;
+}
+
 function getConfigBase() {
   if (state.bffUrl) return `${state.bffUrl.replace(/\/$/, "")}/api/rh/v1/configuracion`;
   return state.configUrl.replace(/\/$/, "");
+}
+
+function getTiemposBase() {
+  if (state.bffUrl) return `${state.bffUrl.replace(/\/$/, "")}/api/rh/v1/tiempos`;
+  return state.tiemposUrl.replace(/\/$/, "");
 }
 
 function setStatus() {
@@ -98,11 +115,30 @@ function normalizeToken(value) {
 
 setStatus();
 
+async function buildErrorMessage(response) {
+  const statusLabel = `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
+  let detail = "";
+  try {
+    const text = await response.text();
+    if (text) {
+      try {
+        const data = JSON.parse(text);
+        detail = data?.message || data?.error || text;
+      } catch {
+        detail = text;
+      }
+    }
+  } catch {
+    detail = "";
+  }
+  return detail ? `${statusLabel} · ${detail}` : statusLabel;
+}
+
 async function fetchJSON(base, path) {
   const headers = new Headers();
   if (state.token) headers.set("Authorization", `Bearer ${state.token}`);
   const response = await fetch(`${base}${path}`, { headers });
-  if (!response.ok) throw new Error(`${response.status}`);
+  if (!response.ok) throw new Error(await buildErrorMessage(response));
   return response.json();
 }
 
@@ -115,8 +151,7 @@ async function postJSON(base, path, payload) {
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
-    const msg = await response.text();
-    throw new Error(msg || `${response.status}`);
+    throw new Error(await buildErrorMessage(response));
   }
   return response.json();
 }
@@ -130,8 +165,7 @@ async function putJSON(base, path, payload) {
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
-    const msg = await response.text();
-    throw new Error(msg || `${response.status}`);
+    throw new Error(await buildErrorMessage(response));
   }
   return response.json();
 }
@@ -141,8 +175,7 @@ async function deleteJSON(base, path) {
   if (state.token) headers.set("Authorization", `Bearer ${state.token}`);
   const response = await fetch(`${base}${path}`, { method: "DELETE", headers });
   if (!response.ok && response.status !== 204) {
-    const msg = await response.text();
-    throw new Error(msg || `${response.status}`);
+    throw new Error(await buildErrorMessage(response));
   }
 }
 
@@ -155,10 +188,55 @@ async function patchJSON(base, path, payload) {
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
-    const msg = await response.text();
-    throw new Error(msg || `${response.status}`);
+    throw new Error(await buildErrorMessage(response));
   }
   return response.json();
+}
+
+function getHealthTargets() {
+  const targets = [
+    { label: "Auth", url: `${state.authUrl.replace(/\/$/, "")}/health` },
+    { label: "Organización", url: `${state.orgUrl.replace(/\/$/, "")}/health` },
+    { label: "Personal", url: `${state.personalUrl.replace(/\/$/, "")}/health` },
+    { label: "Liquidación", url: `${state.liqUrl.replace(/\/$/, "")}/health` },
+    { label: "Integración", url: `${state.hubUrl.replace(/\/$/, "")}/health` },
+    { label: "Workflow", url: `${state.wfUrl.replace(/\/$/, "")}/health` },
+    { label: "Configuración", url: `${state.configUrl.replace(/\/$/, "")}/health` },
+    { label: "Tiempos", url: `${state.tiemposUrl.replace(/\/$/, "")}/health` },
+  ];
+  if (state.bffUrl) {
+    targets.push({ label: "Portal BFF", url: `${state.bffUrl.replace(/\/$/, "")}/health` });
+  }
+  return targets;
+}
+
+async function refreshHealthStatus() {
+  const list = el("list-health");
+  if (!list) return;
+  const targets = getHealthTargets();
+  const results = await Promise.all(
+    targets.map(async (target) => {
+      try {
+        const resp = await fetch(target.url);
+        return { ...target, ok: resp.ok, status: resp.status };
+      } catch {
+        return { ...target, ok: false, status: null };
+      }
+    })
+  );
+  list.innerHTML = results
+    .map((item) => {
+      const dotClass = item.ok ? "ok" : item.status ? "warn" : "fail";
+      const statusLabel = item.ok ? "OK" : item.status ? `Error ${item.status}` : "Sin respuesta";
+      return `
+        <li class="status-item">
+          <span>${item.label}</span>
+          <span class="status-dot ${dotClass}"></span>
+          <span>${statusLabel}</span>
+        </li>
+      `;
+    })
+    .join("");
 }
 
 function renderList(target, items, formatter) {
@@ -230,6 +308,13 @@ function normalizeBool(value) {
   if (value === undefined || value === null || value === "") return true;
   if (typeof value === "boolean") return value;
   return String(value).toLowerCase() !== "false";
+}
+
+function normalizeTime(value) {
+  if (!value) return value;
+  const text = String(value).trim();
+  if (text.length === 5 && text.includes(":")) return `${text}:00`;
+  return text;
 }
 
 function buildExportLinks(payroll) {
@@ -366,9 +451,24 @@ viewButtons.forEach((btn) => {
   btn.addEventListener("click", () => setView(btn.dataset.view));
 });
 
+async function fetchAusenciasResumen() {
+  const form = el("form-ausencias-resumen");
+  const params = new URLSearchParams();
+  if (form) {
+    const fd = new FormData(form);
+    const desde = fd.get("desde");
+    const hasta = fd.get("hasta");
+    if (desde) params.set("desde", desde);
+    if (hasta) params.set("hasta", hasta);
+  }
+  const query = params.toString();
+  const path = query ? `/ausencias/resumen?${query}` : "/ausencias/resumen";
+  return fetchJSON(getTiemposBase(), path).catch(() => null);
+}
+
 async function refreshAll() {
   setStatus();
-  const [empresas, unidades, legajos, posiciones, sindicatos, convenios, payrolls, jobs, templates, instances, parametros] = await Promise.all([
+  const [empresas, unidades, legajos, posiciones, sindicatos, convenios, payrolls, jobs, templates, instances, parametros, turnos, horarios, fichadas, planillas, ausenciasResumen] = await Promise.all([
     fetchJSON(getOrgBase(), "/empresas").catch(() => []),
     fetchJSON(getOrgBase(), "/unidades").catch(() => []),
     fetchJSON(getPersonalBase(), "/legajos").catch(() => []),
@@ -380,6 +480,11 @@ async function refreshAll() {
     fetchJSON(getHubBase(), "/templates").catch(() => []),
     fetchJSON(getWfBase(), "/instances").catch(() => []),
     fetchJSON(getConfigBase(), "/parametros").catch(() => []),
+    fetchJSON(getTiemposBase(), "/turnos").catch(() => []),
+    fetchJSON(getTiemposBase(), "/horarios").catch(() => []),
+    fetchJSON(getTiemposBase(), "/fichadas").catch(() => []),
+    fetchJSON(getTiemposBase(), "/planillas").catch(() => []),
+    fetchAusenciasResumen(),
   ]);
 
   const triggers = await fetchJSON(getHubBase(), "/triggers").catch(() => []);
@@ -395,6 +500,10 @@ async function refreshAll() {
   state.sindicatos = sindicatos;
   state.convenios = convenios;
   state.parametros = parametros;
+  state.turnos = turnos;
+  state.horarios = horarios;
+  state.fichadas = fichadas;
+  state.planillas = planillas;
 
   el("stat-empresas").textContent = empresas.length || "0";
   el("stat-unidades").textContent = unidades.length || "0";
@@ -410,9 +519,6 @@ async function refreshAll() {
   renderList("list-payrolls", payrolls, (p) => `<strong>${p.periodo}</strong> · ${p.tipo} · ${p.estado}`);
   renderList("list-legajos", legajos, (l) => `<strong>${l.numero}</strong> · ${l.nombre}`);
   renderList("list-jobs", jobs, (j) => `<strong>${j.estado}</strong> · ${j.trigger} <button class="btn small btn-job-retry" data-id="${j.id}">Reintentar</button>`);
-  renderList("list-templates", templates, (t) => `<strong>${t.name}</strong> · ${t.estado}`);
-  renderList("list-jobs-tiempo", jobs, (j) => `<strong>${j.estado}</strong> · ${j.trigger} · ${j.periodo || ""} <button class="btn small btn-job-retry" data-id="${j.id}">Reintentar</button>`);
-
   renderList("list-empresas", empresas, (e) => `<strong>${e.nombre}</strong> · ${e.pais} <button class="btn small btn-delete-empresa" data-id="${e.id}">Eliminar</button>`);
   renderList("list-unidades", unidades, (u) => `<strong>${u.nombre}</strong> · ${u.tipo} <button class="btn small btn-delete-unidad" data-id="${u.id}">Eliminar</button>`);
   renderList("list-legajos-full", legajos, (l) => `<strong>${l.numero}</strong> · ${l.nombre} <button class="btn small btn-delete-legajo" data-id="${l.id}">Eliminar</button>`);
@@ -430,7 +536,20 @@ async function refreshAll() {
   renderList("list-jobs-full", jobs, (j) => `<strong>${j.estado}</strong> · ${j.trigger} <button class="btn small btn-job-retry" data-id="${j.id}">Reintentar</button>`);
   renderList("list-triggers", triggers, (t) => `<strong>${t.eventName}</strong> · ${t.enabled ? "Activo" : "Inactivo"} <button class="btn small btn-trigger-edit" data-id="${t.id}">Editar</button>`);
   renderList("list-vacaciones", instances.filter((i) => i.key === "vacaciones"), (i) => `<strong>${i.estado}</strong> · ${i.id} <button class="btn small btn-vac-approve" data-id="${i.id}">Aprobar</button> <button class="btn small btn-vac-reject" data-id="${i.id}">Rechazar</button>`);
+  renderList("list-reclamos", instances.filter((i) => i.key === "reclamos"), (i) => `<strong>${i.estado}</strong> · ${i.id} <button class="btn small btn-reclamo-approve" data-id="${i.id}">Aprobar</button> <button class="btn small btn-reclamo-reject" data-id="${i.id}">Rechazar</button>`);
+  renderList("list-sanciones", instances.filter((i) => i.key === "sanciones"), (i) => `<strong>${i.estado}</strong> · ${i.id} <button class="btn small btn-sancion-approve" data-id="${i.id}">Resolver</button> <button class="btn small btn-sancion-reject" data-id="${i.id}">Descartar</button>`);
+  renderList("list-medicina-examen", instances.filter((i) => i.key === "medicina-examen"), (i) => `<strong>${i.estado}</strong> · ${i.id} <button class="btn small btn-med-approve" data-id="${i.id}">Aprobar</button> <button class="btn small btn-med-reject" data-id="${i.id}">Rechazar</button>`);
+  renderList("list-medicina-licencia", instances.filter((i) => i.key === "medicina-licencia"), (i) => `<strong>${i.estado}</strong> · ${i.id} <button class="btn small btn-med-approve" data-id="${i.id}">Aprobar</button> <button class="btn small btn-med-reject" data-id="${i.id}">Rechazar</button>`);
   renderList("list-parametros", parametros, (p) => `<strong>${p.clave}</strong> · ${p.valor}`);
+  renderList("list-turnos", turnos, (t) => `<strong>${t.codigo}</strong> · ${t.nombre} · ${t.horaInicio} → ${t.horaFin} <button class="btn small btn-delete-turno" data-id="${t.id}">Eliminar</button>`);
+  renderList("list-horarios", horarios, (h) => `<strong>${h.nombre}</strong> · ${h.diasSemana} · ${h.turnoId} <button class="btn small btn-delete-horario" data-id="${h.id}">Eliminar</button>`);
+  renderList("list-fichadas", fichadas, (f) => `<strong>${f.tipo}</strong> · ${f.legajoId} · ${new Date(f.fechaHora).toLocaleString("es-AR")} · ${f.origen}`);
+  renderList("list-planillas", planillas, (p) => `<strong>${p.periodo}</strong> · ${p.estado} · ${p.totalHoras} hs <button class="btn small btn-cerrar-planilla" data-id="${p.id}">Cerrar</button>`);
+  if (ausenciasResumen && Array.isArray(ausenciasResumen.porLegajo)) {
+    renderList("list-ausencias-resumen", ausenciasResumen.porLegajo, (item) => `<strong>${item.key}</strong> · ${item.totalDias} días · ${item.totalRegistros} registros`);
+  } else {
+    renderList("list-ausencias-resumen", [], () => "");
+  }
 
   fillSelect("select-empresa", empresas, (e) => `${e.nombre} (${e.pais})`);
   fillSelect("select-unidad", unidades, (u) => `${u.nombre} (${u.tipo})`);
@@ -457,6 +576,15 @@ async function refreshAll() {
   fillSelect("select-trigger", triggers, (t) => `${t.eventName}`);
   fillSelect("select-trigger-edit", triggers, (t) => `${t.eventName}`);
   fillSelect("select-template-trigger-edit", templates, (t) => `${t.name}`);
+  fillSelect("select-turno", turnos, (t) => `${t.codigo} · ${t.nombre}`);
+  fillSelect("select-turno-edit", turnos, (t) => `${t.codigo} · ${t.nombre}`);
+  fillSelect("select-turno-horario-edit", turnos, (t) => `${t.codigo} · ${t.nombre}`);
+  fillSelect("select-horario-edit", horarios, (h) => `${h.nombre}`);
+  fillSelect("select-legajo-fichada", legajos, (l) => `${l.numero} · ${l.nombre}`);
+  fillSelect("select-empresa-planilla", empresas, (e) => `${e.nombre}`);
+  fillSelect("select-legajo-planilla", legajos, (l) => `${l.numero} · ${l.nombre}`);
+
+  await refreshHealthStatus();
 
   document.querySelectorAll(".btn-delete-empresa").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -495,6 +623,36 @@ async function refreshAll() {
         refreshAll();
       } catch (err) {
         alert(`Error eliminando posición: ${err.message}`);
+      }
+    });
+  });
+  document.querySelectorAll(".btn-delete-turno").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await deleteJSON(getTiemposBase(), `/turnos/${btn.dataset.id}`);
+        refreshAll();
+      } catch (err) {
+        alert(`Error eliminando turno: ${err.message}`);
+      }
+    });
+  });
+  document.querySelectorAll(".btn-delete-horario").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await deleteJSON(getTiemposBase(), `/horarios/${btn.dataset.id}`);
+        refreshAll();
+      } catch (err) {
+        alert(`Error eliminando horario: ${err.message}`);
+      }
+    });
+  });
+  document.querySelectorAll(".btn-cerrar-planilla").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await postJSON(getTiemposBase(), `/planillas/${btn.dataset.id}/cerrar`, {});
+        refreshAll();
+      } catch (err) {
+        alert(`Error cerrando planilla: ${err.message}`);
       }
     });
   });
@@ -539,6 +697,32 @@ async function refreshAll() {
           actor: el("vac-actor").value || "rrhh",
           datos: { comentario: el("vac-comment").value || "" },
         });
+        // Notificar al empleado
+        const instance = (state.wfInstances || []).find((item) => item.id === btn.dataset.id);
+        if (state.bffUrl && instance)
+        {
+          const legajoNumero = instance.datos?.legajoNumero || "";
+          const fechaDesde = instance.datos?.fechaDesde || instance.datos?.fecha || "";
+          const fechaHasta = instance.datos?.fechaHasta || instance.datos?.fecha || "";
+          await postJSON(state.bffUrl, "/api/portal/v1/notificaciones", {
+            title: "Vacaciones aprobadas",
+            detail: `Legajo ${legajoNumero} · ${fechaDesde} → ${fechaHasta}`,
+            sourceId: instance.id
+          });
+          // Integracion con Tiempos: registrar ausencia
+          if (legajoNumero && fechaDesde && fechaHasta)
+          {
+            await postJSON(getTiemposBase(), "/ausencias", {
+              legajoId: null,
+              legajoNumero,
+              tipo: "Vacaciones",
+              fechaDesde,
+              fechaHasta,
+              origen: "Vacaciones",
+              observaciones: "Vacaciones aprobadas"
+            });
+          }
+        }
         refreshAll();
       } catch (err) {
         alert(`Error aprobando vacaciones: ${err.message}`);
@@ -553,9 +737,177 @@ async function refreshAll() {
           actor: el("vac-actor").value || "rrhh",
           datos: { comentario: el("vac-comment").value || "" },
         });
+        // Notificar al empleado
+        const instance = (state.wfInstances || []).find((item) => item.id === btn.dataset.id);
+        if (state.bffUrl && instance)
+        {
+          const legajoNumero = instance.datos?.legajoNumero || "";
+          const fechaDesde = instance.datos?.fechaDesde || instance.datos?.fecha || "";
+          const fechaHasta = instance.datos?.fechaHasta || instance.datos?.fecha || "";
+          await postJSON(state.bffUrl, "/api/portal/v1/notificaciones", {
+            title: "Vacaciones rechazadas",
+            detail: `Legajo ${legajoNumero} · ${fechaDesde} → ${fechaHasta}`,
+            sourceId: instance.id
+          });
+        }
         refreshAll();
       } catch (err) {
         alert(`Error rechazando vacaciones: ${err.message}`);
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-reclamo-approve").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await postJSON(getWfBase(), `/instances/${btn.dataset.id}/transitions`, {
+          evento: "aprobar",
+          actor: el("reclamo-actor").value || "mesa-ayuda",
+          datos: { comentario: el("reclamo-comment").value || "" },
+        });
+        refreshAll();
+      } catch (err) {
+        alert(`Error aprobando reclamo: ${err.message}`);
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-reclamo-reject").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await postJSON(getWfBase(), `/instances/${btn.dataset.id}/transitions`, {
+          evento: "rechazar",
+          actor: el("reclamo-actor").value || "mesa-ayuda",
+          datos: { comentario: el("reclamo-comment").value || "" },
+        });
+        refreshAll();
+      } catch (err) {
+        alert(`Error rechazando reclamo: ${err.message}`);
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-sancion-approve").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await postJSON(getWfBase(), `/instances/${btn.dataset.id}/transitions`, {
+          evento: "aprobar",
+          actor: el("sancion-actor").value || "rrhh",
+          datos: { comentario: el("sancion-comment").value || "" },
+        });
+        refreshAll();
+      } catch (err) {
+        alert(`Error resolviendo sanción: ${err.message}`);
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-sancion-reject").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await postJSON(getWfBase(), `/instances/${btn.dataset.id}/transitions`, {
+          evento: "rechazar",
+          actor: el("sancion-actor").value || "rrhh",
+          datos: { comentario: el("sancion-comment").value || "" },
+        });
+        refreshAll();
+      } catch (err) {
+        alert(`Error descartando sanción: ${err.message}`);
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-med-approve").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await postJSON(getWfBase(), `/instances/${btn.dataset.id}/transitions`, {
+          evento: "aprobar",
+          actor: el("medicina-actor").value || "medico",
+          datos: { comentario: el("medicina-comment").value || "" },
+        });
+        const instance = (state.wfInstances || []).find((item) => item.id === btn.dataset.id);
+        if (instance && instance.key === "medicina-licencia")
+        {
+          const fechaDesde = instance.datos?.fechaDesde || instance.datos?.fecha || null;
+          const fechaHasta = instance.datos?.fechaHasta || instance.datos?.fecha || null;
+          const legajoNumero = instance.datos?.legajoNumero || "";
+          if (fechaDesde && fechaHasta)
+          {
+            if (legajoNumero)
+            {
+              await postJSON(getTiemposBase(), "/ausencias", {
+                legajoId: null,
+                legajoNumero,
+                tipo: instance.datos?.tipo || "Licencia médica",
+                fechaDesde,
+                fechaHasta,
+                origen: "Medicina",
+                observaciones: "Licencia médica aprobada"
+              });
+            }
+          }
+        }
+        if (state.bffUrl && instance && instance.key === "medicina-licencia")
+        {
+          const legajoNumero = instance.datos?.legajoNumero || "";
+          const fechaDesde = instance.datos?.fechaDesde || instance.datos?.fecha || "";
+          const fechaHasta = instance.datos?.fechaHasta || instance.datos?.fecha || "";
+          await postJSON(state.bffUrl, "/api/portal/v1/notificaciones", {
+            title: "Licencia médica aprobada",
+            detail: `Legajo ${legajoNumero} · ${fechaDesde} → ${fechaHasta}`,
+            sourceId: instance.id
+          });
+        }
+        if (state.bffUrl && instance && instance.key === "medicina-examen")
+        {
+          const legajoNumero = instance.datos?.legajoNumero || "";
+          const fecha = instance.datos?.fecha || "";
+          await postJSON(state.bffUrl, "/api/portal/v1/notificaciones", {
+            title: "Examen médico aprobado",
+            detail: `Legajo ${legajoNumero} · ${fecha}`,
+            sourceId: instance.id
+          });
+        }
+        refreshAll();
+      } catch (err) {
+        alert(`Error aprobando solicitud médica: ${err.message}`);
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-med-reject").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      try {
+        await postJSON(getWfBase(), `/instances/${btn.dataset.id}/transitions`, {
+          evento: "rechazar",
+          actor: el("medicina-actor").value || "medico",
+          datos: { comentario: el("medicina-comment").value || "" },
+        });
+        const instance = (state.wfInstances || []).find((item) => item.id === btn.dataset.id);
+        if (state.bffUrl && instance && instance.key === "medicina-examen")
+        {
+          const legajoNumero = instance.datos?.legajoNumero || "";
+          const fecha = instance.datos?.fecha || "";
+          await postJSON(state.bffUrl, "/api/portal/v1/notificaciones", {
+            title: "Examen médico rechazado",
+            detail: `Legajo ${legajoNumero} · ${fecha}`,
+            sourceId: instance.id
+          });
+        }
+        if (state.bffUrl && instance && instance.key === "medicina-licencia")
+        {
+          const legajoNumero = instance.datos?.legajoNumero || "";
+          const fechaDesde = instance.datos?.fechaDesde || instance.datos?.fecha || "";
+          const fechaHasta = instance.datos?.fechaHasta || instance.datos?.fecha || "";
+          await postJSON(state.bffUrl, "/api/portal/v1/notificaciones", {
+            title: "Licencia médica rechazada",
+            detail: `Legajo ${legajoNumero} · ${fechaDesde} → ${fechaHasta}`,
+            sourceId: instance.id
+          });
+        }
+        refreshAll();
+      } catch (err) {
+        alert(`Error rechazando solicitud médica: ${err.message}`);
       }
     });
   });
@@ -594,6 +946,7 @@ el("btn-save").addEventListener("click", () => {
   state.wfUrl = el("wf-url").value.trim();
   state.bffUrl = el("bff-url").value.trim();
   state.configUrl = el("config-url").value.trim();
+  state.tiemposUrl = el("tiempos-url").value.trim();
   state.token = normalizeToken(el("token").value);
   localStorage.setItem(KEYS.auth, state.authUrl);
   localStorage.setItem(KEYS.liq, state.liqUrl);
@@ -603,11 +956,85 @@ el("btn-save").addEventListener("click", () => {
   localStorage.setItem(KEYS.wf, state.wfUrl);
   localStorage.setItem(KEYS.bff, state.bffUrl);
   localStorage.setItem(KEYS.config, state.configUrl);
+  localStorage.setItem(KEYS.tiempos, state.tiemposUrl);
   localStorage.setItem(KEYS.token, state.token);
   refreshAll();
 });
 
 el("btn-refresh").addEventListener("click", refreshAll);
+
+el("btn-refresh-medicina-stats")?.addEventListener("click", async () => {
+  try {
+    const stats = await fetchJSON(getMedicinaBase(), "/estadisticas");
+    if (stats) {
+      el("stat-examenes-aprobados").textContent = stats.examenes?.aprobados ?? 0;
+      el("stat-examenes-pendientes").textContent = stats.examenes?.pendientes ?? 0;
+      el("stat-licencias-aprobadas").textContent = stats.licencias?.aprobadas ?? 0;
+      el("stat-licencias-pendientes").textContent = stats.licencias?.pendientes ?? 0;
+    }
+    // Cargar alertas
+    await loadMedicinaAlertas();
+  } catch (err) {
+    alert(`Error cargando estadísticas: ${err.message}`);
+  }
+});
+
+async function loadMedicinaAlertas() {
+  const lista = el("list-medicina-alertas");
+  const hint = el("medicina-alertas-hint");
+  if (!lista) return;
+  
+  const instances = state.wfInstances || [];
+  const medicinaInstances = instances.filter(i => 
+    i.key === "medicina-examen" || i.key === "medicina-licencia"
+  );
+  
+  const alertas = [];
+  
+  // Verificar licencias pendientes hace más de 30 días
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  medicinaInstances.forEach(inst => {
+    const created = new Date(inst.createdAt || inst.created);
+    if (inst.estado === "Pendiente" && created < thirtyDaysAgo) {
+      alertas.push({
+        tipo: "warning",
+        mensaje: `Solicitud pendiente hace más de 30 días: ${inst.key} (${inst.id?.slice(0,8)})`
+      });
+    }
+  });
+  
+  // Verificar licencias extensas (más de 60 días)
+  medicinaInstances.forEach(inst => {
+    if (inst.key === "medicina-licencia" && inst.estado === "Aprobada") {
+      const fechaDesde = inst.datos?.fechaDesde || inst.datos?.fecha;
+      const fechaHasta = inst.datos?.fechaHasta;
+      if (fechaDesde && fechaHasta) {
+        const desde = new Date(fechaDesde);
+        const hasta = new Date(fechaHasta);
+        const dias = Math.ceil((hasta - desde) / (1000 * 60 * 60 * 24));
+        if (dias > 60) {
+          alertas.push({
+            tipo: "danger",
+            mensaje: `Licencia extensa (${dias} días): legajo ${inst.datos?.legajoNumero} (${inst.id?.slice(0,8)})`
+          });
+        }
+      }
+    }
+  });
+  
+  // Renderizar alertas
+  if (alertas.length === 0) {
+    lista.innerHTML = "";
+    if (hint) hint.textContent = "Sin alertas.";
+  } else {
+    if (hint) hint.textContent = "";
+    lista.innerHTML = alertas.map(a => 
+      `<li class="alerta-${a.tipo}">${a.mensaje}</li>`
+    ).join("");
+  }
+}
 
 el("btn-login-demo").addEventListener("click", async () => {
   const payload = { username: "admin", password: "admin123" };
@@ -1096,6 +1523,11 @@ el("form-trigger")?.addEventListener("submit", async (evt) => {
   }
 });
 
+el("form-ausencias-resumen")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  await refreshAll();
+});
+
 el("form-trigger-exec")?.addEventListener("submit", async (evt) => {
   evt.preventDefault();
   const fd = new FormData(evt.target);
@@ -1275,6 +1707,145 @@ el("form-parametro-buscar")?.addEventListener("submit", async (evt) => {
     if (target) target.innerHTML = `<strong>${item.clave}</strong> · ${item.valor}`;
   } catch (err) {
     showFormError("form-parametro-buscar", `Error buscando parámetro: ${err.message}`);
+  }
+});
+
+el("form-turno")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const fd = new FormData(evt.target);
+  clearFormError("form-turno");
+  try {
+    await postJSON(getTiemposBase(), "/turnos", {
+      codigo: fd.get("codigo"),
+      nombre: fd.get("nombre"),
+      horaInicio: normalizeTime(fd.get("horaInicio")),
+      horaFin: normalizeTime(fd.get("horaFin")),
+      toleranciaMinutos: Number(fd.get("toleranciaMinutos") || 0),
+      activo: normalizeBool(fd.get("activo")),
+    });
+    evt.target.reset();
+    refreshAll();
+  } catch (err) {
+    showFormError("form-turno", `Error creando turno: ${err.message}`);
+  }
+});
+
+el("form-turno-edit")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const fd = new FormData(evt.target);
+  clearFormError("form-turno-edit");
+  const id = fd.get("turnoId");
+  if (!id) {
+    showFormError("form-turno-edit", "Seleccioná un turno");
+    return;
+  }
+  try {
+    await putJSON(getTiemposBase(), `/turnos/${id}`, {
+      codigo: fd.get("codigo"),
+      nombre: fd.get("nombre"),
+      horaInicio: normalizeTime(fd.get("horaInicio")),
+      horaFin: normalizeTime(fd.get("horaFin")),
+      toleranciaMinutos: Number(fd.get("toleranciaMinutos") || 0),
+      activo: normalizeBool(fd.get("activo")),
+    });
+    refreshAll();
+  } catch (err) {
+    showFormError("form-turno-edit", `Error actualizando turno: ${err.message}`);
+  }
+});
+
+el("form-horario")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const fd = new FormData(evt.target);
+  clearFormError("form-horario");
+  try {
+    await postJSON(getTiemposBase(), "/horarios", {
+      nombre: fd.get("nombre"),
+      diasSemana: fd.get("diasSemana"),
+      turnoId: fd.get("turnoId"),
+      activo: normalizeBool(fd.get("activo")),
+    });
+    evt.target.reset();
+    refreshAll();
+  } catch (err) {
+    showFormError("form-horario", `Error creando horario: ${err.message}`);
+  }
+});
+
+el("form-horario-edit")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const fd = new FormData(evt.target);
+  clearFormError("form-horario-edit");
+  const id = fd.get("horarioId");
+  if (!id) {
+    showFormError("form-horario-edit", "Seleccioná un horario");
+    return;
+  }
+  try {
+    await putJSON(getTiemposBase(), `/horarios/${id}`, {
+      nombre: fd.get("nombre"),
+      diasSemana: fd.get("diasSemana"),
+      turnoId: fd.get("turnoId"),
+      activo: normalizeBool(fd.get("activo")),
+    });
+    refreshAll();
+  } catch (err) {
+    showFormError("form-horario-edit", `Error actualizando horario: ${err.message}`);
+  }
+});
+
+el("form-fichada")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const fd = new FormData(evt.target);
+  clearFormError("form-fichada");
+  const legajoId = fd.get("legajoId");
+  if (!legajoId) {
+    showFormError("form-fichada", "Seleccioná un legajo");
+    return;
+  }
+  try {
+    await postJSON(getTiemposBase(), "/fichadas", {
+      legajoId,
+      fechaHora: fd.get("fechaHora"),
+      tipo: fd.get("tipo"),
+      origen: fd.get("origen"),
+      observaciones: fd.get("observaciones"),
+    });
+    evt.target.reset();
+    refreshAll();
+  } catch (err) {
+    showFormError("form-fichada", `Error registrando fichada: ${err.message}`);
+  }
+});
+
+el("form-planilla")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const fd = new FormData(evt.target);
+  clearFormError("form-planilla");
+  const empresaId = fd.get("empresaId");
+  const legajoId = fd.get("legajoId");
+  if (!empresaId || !legajoId) {
+    showFormError("form-planilla", "Seleccioná empresa y legajo");
+    return;
+  }
+  try {
+    await postJSON(getTiemposBase(), "/planillas", {
+      periodo: fd.get("periodo"),
+      empresaId,
+      detalles: [
+        {
+          legajoId,
+          horasNormales: Number(fd.get("horasNormales") || 0),
+          horasExtra: Number(fd.get("horasExtra") || 0),
+          horasAusencia: Number(fd.get("horasAusencia") || 0),
+          observaciones: fd.get("observaciones"),
+        },
+      ],
+    });
+    evt.target.reset();
+    refreshAll();
+  } catch (err) {
+    showFormError("form-planilla", `Error creando planilla: ${err.message}`);
   }
 });
 

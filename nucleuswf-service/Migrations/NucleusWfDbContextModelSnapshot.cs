@@ -86,6 +86,45 @@ namespace nucleuswfservice.Migrations
                     b.ToTable("Instances");
                 });
 
+            modelBuilder.Entity("NucleusWFService.Domain.Models.WorkflowOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DefinitionKey")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Evento")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("InstanceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey", "Operation")
+                        .IsUnique();
+
+                    b.ToTable("Operations");
+                });
+
             modelBuilder.Entity("NucleusWFService.Domain.Models.WorkflowDefinition", b =>
                 {
                     b.OwnsMany("NucleusWFService.Domain.Models.WorkflowTransition", "Transiciones", b1 =>
@@ -130,8 +169,20 @@ namespace nucleuswfservice.Migrations
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
+                            b1.Property<string>("ActorRole")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("CorrelationId")
+                                .HasColumnType("TEXT");
+
                             b1.Property<string>("From")
                                 .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("IdempotencyKey")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("PayloadSummary")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("To")

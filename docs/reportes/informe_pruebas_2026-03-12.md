@@ -107,6 +107,29 @@
 - Se observan errores de favicon (404) en ambos portales (no afecta funcionalidad).
 - En Portal Empleado, quedan errores previos por BFF en consola del navegador antes de deshabilitarlo; luego las llamadas directas quedaron OK.
 
+## Actualizacion (2026-03-13)
+- CORS actualizado en servicios y Portal BFF para permitir `Origin: null` en Development y orígenes configurados.
+- Build y tests de `nuevo-nucleus.sln` ejecutados OK en local.
+- Se robustecio el parseo de `OpenTelemetry:Enabled` y `Database:ApplyMigrations` para valores vacios en docker compose.
+- Docker compose prod levantado. Smoke test de health y auth OK:
+  - `/health` OK: auth (5001), organizacion (5100), personal (5200), liquidacion (5188), integration-hub (5050), nucleuswf (5051), portal-bff (5090), configuracion (5300), tiempos (5400).
+  - Login `POST /login` OK y `/me` OK con JWT.
+- E2E Playwright OK: Portal RH y Portal Empleado (login demo + refresh sin 401).
+- Sprint 3 (MVP) completado: Reclamos y Sanciones con workflows y UI.
+- Script de automatización E2E: `start-e2e.ps1`.
+- WF: auditoría de transiciones (actor/rol/correlation/idempotency) e idempotencia por operación.
+- Servicios core: middleware de `X-Correlation-Id` e `Idempotency-Key` cuando no vienen en la solicitud.
+- Liquidación: soporte de contribuciones patronales por legajo/recibo (detalle + total).
+- Portal BFF: logging incluye CorrelationId e IdempotencyKey.
+- Servicios core: logging incluye CorrelationId e IdempotencyKey.
+- Medicina laboral: workflows base y UI operativos (solicitudes + aprobaciones).
+- WF: resumen de payloads sensibles con redacción en auditoría.
+- Tiempos: endpoint de ausencias usado para licencias médicas aprobadas.
+- Medicina: notificación automática al aprobar licencia (Portal Empleado).
+- Tiempos: resumen de ausencias médicas disponible.
+- Medicina: notificaciones por aprobación/rechazo de exámenes.
+- Portal RH: filtro por fechas en resumen de ausencias médicas.
+
 ### Observabilidad (OTEL)
 - Stack levantado con `docker-compose.prod.yml` (otel-collector, jaeger, prometheus).
 - Jaeger UI: HTTP 200 en `http://localhost:16686`.

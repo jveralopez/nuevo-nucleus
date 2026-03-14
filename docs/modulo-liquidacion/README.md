@@ -21,6 +21,7 @@ Construir una versión moderna del módulo de liquidación que reemplace la lóg
 - Integración base con `integration-hub-service` para disparar jobs al exportar.
 - Documentos de arquitectura y API (en esta carpeta).
 - Listado de exportes disponible via `GET /payrolls/{id}/exports`.
+- Soporte de contribuciones patronales en recibos (detalle + total).
 - Base de conocimiento de liquidación argentina: `docs/modulo-liquidacion/base_conocimiento_argentina.md`.
 - Esquema de versionado de tablas de Ganancias: `docs/modulo-liquidacion/tablas_ganancias_versionado.md`.
 - Proceso de actualización de Ganancias: `docs/modulo-liquidacion/proceso_actualizacion_ganancias.md`.
@@ -42,6 +43,10 @@ Construir una versión moderna del módulo de liquidación que reemplace la lóg
 | Servicio base | API REST con persistencia SQL y cálculos netos | ✅ |
 | UI operativa | Panel capaz de crear/gestionar liquidaciones desde navegador | ✅ |
 | Integraciones | Exportes contables/bancos + hooks event-driven | 🚧 |
+
+## Reforma laboral 2026 (Ley 27.802)
+- El recibo debe detallar contribuciones patronales por trabajador con importe por concepto.
+- Ver resumen: `docs/cambiosNuevaReforma.md`.
 
 ---
 *Documento generado el 2026-03-09 a partir del repositorio `23.01` y la nueva implementación en `C:\trabajo\nuevo-nucleus`.*

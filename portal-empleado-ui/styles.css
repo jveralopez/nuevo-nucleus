@@ -226,6 +226,54 @@ body {
   align-self: start;
 }
 
+.status-card {
+  grid-column: span 4;
+  align-self: start;
+}
+
+.status-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 10px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #eef2f6;
+  font-size: 13px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #d1d9e0;
+  box-shadow: 0 0 0 4px rgba(209, 217, 224, 0.35);
+}
+
+.status-dot.ok {
+  background: #2ecc71;
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.25);
+}
+
+.status-dot.warn {
+  background: #f39c12;
+  box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.25);
+}
+
+.status-dot.fail {
+  background: #e74c3c;
+  box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.25);
+}
+
 label {
   display: block;
   font-size: 12px;

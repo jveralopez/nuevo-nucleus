@@ -120,6 +120,12 @@
           <p class="hint">Resumen: <span id="notif-resumen">0/0</span></p>
         </section>
 
+        <section class="card status-card">
+          <h3>Estado servicios</h3>
+          <ul id="list-health" class="status-list"></ul>
+          <p class="hint">Control de APIs usadas por el portal.</p>
+        </section>
+
         <aside class="card settings">
           <h3>Configuración</h3>
           <label>Auth API
@@ -205,11 +211,13 @@
             <li>Vacaciones (próximamente)</li>
             <li>Datos personales (próximamente)</li>
             <li>Reclamos (próximamente)</li>
+            <li>Sanciones (descargo)</li>
+            <li>Medicina laboral (exámenes/licencias)</li>
           </ul>
         </section>
         <section class="card">
           <h3>Workflows demo</h3>
-          <p class="hint">Crea definiciones base para Vacaciones, Datos Personales y Reclamos.</p>
+          <p class="hint">Crea definiciones base para Vacaciones, Datos Personales, Reclamos y Sanciones.</p>
           <button id="btn-seed-wf" type="button" class="btn">Cargar workflows</button>
         </section>
         <section class="card">
@@ -222,6 +230,34 @@
           </form>
         </section>
         <section class="card">
+          <h3>Mis Vacaciones</h3>
+          <div id="vacaciones-resumen" class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Días disponibles</span>
+              <span class="stat-value" id="vac-dias-disponibles">-</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Días tomados</span>
+              <span class="stat-value" id="vac-dias-tomados">-</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Días pendientes</span>
+              <span class="stat-value" id="vac-dias-pendientes">-</span>
+            </div>
+          </div>
+          <button id="btn-vac-resumen" class="btn">Actualizar</button>
+        </section>
+        <section class="card">
+          <h3>Simulador de vacaciones</h3>
+          <form id="form-vacaciones-simulador" class="form">
+            <label>Legajo<input name="legajoNumero" placeholder="00045" required /></label>
+            <label>Inicio<input name="inicio" type="date" required /></label>
+            <label>Fin<input name="fin" type="date" required /></label>
+            <button type="submit" class="btn secondary">Calcular días</button>
+          </form>
+          <p class="hint" id="simulador-resultado"></p>
+        </section>
+        <section class="card">
           <h3>Solicitud de vacaciones</h3>
           <form id="form-vacaciones" class="form">
             <label>Legajo<input name="legajoNumero" placeholder="00045" required /></label>
@@ -229,7 +265,6 @@
             <label>Fin<input name="fin" type="date" required /></label>
             <label>Días<input name="dias" type="number" required /></label>
             <label>Motivo<input name="motivo" /></label>
-            <p class="hint">Saldo disponible: <span id="saldo-vacaciones">10</span> días.</p>
             <button type="submit" class="btn">Enviar solicitud</button>
           </form>
         </section>
@@ -247,6 +282,36 @@
             <label>Asunto<input name="asunto" placeholder="Recibo incorrecto" required /></label>
             <label>Detalle<input name="detalle" placeholder="Se detecta diferencia en descuentos" required /></label>
             <button type="submit" class="btn">Enviar reclamo</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Descargo por sanción</h3>
+          <form id="form-sancion" class="form">
+            <label>Legajo<input name="legajoNumero" placeholder="00045" required /></label>
+            <label>Motivo<input name="motivo" placeholder="Atrasos reiterados" required /></label>
+            <label>Detalle<input name="detalle" placeholder="Descripción del descargo" required /></label>
+            <button type="submit" class="btn">Enviar descargo</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Examen médico</h3>
+          <form id="form-medicina-examen" class="form">
+            <label>Legajo<input name="legajoNumero" placeholder="00045" required /></label>
+            <label>Tipo<input name="tipo" placeholder="Ingreso" required /></label>
+            <label>Fecha<input name="fecha" type="date" required /></label>
+            <label>Notas<input name="notas" placeholder="Ingresar en ayunas" /></label>
+            <button type="submit" class="btn">Solicitar examen</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Licencia médica</h3>
+          <form id="form-medicina-licencia" class="form">
+            <label>Legajo<input name="legajoNumero" placeholder="00045" required /></label>
+            <label>Tipo<input name="tipo" placeholder="Enfermedad" required /></label>
+            <label>Desde<input name="fechaDesde" type="date" required /></label>
+            <label>Hasta<input name="fechaHasta" type="date" required /></label>
+            <label>Diagnóstico<input name="diagnostico" placeholder="Gripe" /></label>
+            <button type="submit" class="btn">Solicitar licencia</button>
           </form>
         </section>
         <section class="card">

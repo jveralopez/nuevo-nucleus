@@ -52,12 +52,31 @@ function normalizeToken(value) {
 
 setStatus();
 
+async function buildErrorMessage(response) {
+  const statusLabel = `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
+  let detail = "";
+  try {
+    const text = await response.text();
+    if (text) {
+      try {
+        const data = JSON.parse(text);
+        detail = data?.message || data?.error || text;
+      } catch {
+        detail = text;
+      }
+    }
+  } catch {
+    detail = "";
+  }
+  return detail ? `${statusLabel} · ${detail}` : statusLabel;
+}
+
 async function fetchJSON(base, path) {
   const headers = new Headers();
   if (state.token) headers.set("Authorization", `Bearer ${state.token}`);
   const response = await fetch(`${base}${path}`, { headers });
   if (!response.ok) {
-    throw new Error(`${response.status}`);
+    throw new Error(await buildErrorMessage(response));
   }
   return response.json();
 }
@@ -71,8 +90,7 @@ async function postJSON(base, path, payload) {
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
-    const msg = await response.text();
-    throw new Error(msg || `${response.status}`);
+    throw new Error(await buildErrorMessage(response));
   }
   return response.json();
 }
@@ -92,9 +110,49 @@ async function deleteJSON(base, path) {
   if (state.token) headers.set("Authorization", `Bearer ${state.token}`);
   const response = await fetch(`${base}${path}`, { method: "DELETE", headers });
   if (!response.ok) {
-    const msg = await response.text();
-    throw new Error(msg || `${response.status}`);
+    throw new Error(await buildErrorMessage(response));
   }
+}
+
+function getHealthTargets() {
+  const targets = [
+    { label: "Auth", url: `${state.authUrl.replace(/\/$/, "")}/health` },
+    { label: "Liquidación", url: `${state.liqUrl.replace(/\/$/, "")}/health` },
+    { label: "Workflow", url: `${state.wfUrl.replace(/\/$/, "")}/health` },
+  ];
+  if (state.bffUrl) {
+    targets.push({ label: "Portal BFF", url: `${state.bffUrl.replace(/\/$/, "")}/health` });
+  }
+  return targets;
+}
+
+async function refreshHealthStatus() {
+  const list = el("list-health");
+  if (!list) return;
+  const targets = getHealthTargets();
+  const results = await Promise.all(
+    targets.map(async (target) => {
+      try {
+        const resp = await fetch(target.url);
+        return { ...target, ok: resp.ok, status: resp.status };
+      } catch {
+        return { ...target, ok: false, status: null };
+      }
+    })
+  );
+  list.innerHTML = results
+    .map((item) => {
+      const dotClass = item.ok ? "ok" : item.status ? "warn" : "fail";
+      const statusLabel = item.ok ? "OK" : item.status ? `Error ${item.status}` : "Sin respuesta";
+      return `
+        <li class="status-item">
+          <span>${item.label}</span>
+          <span class="status-dot ${dotClass}"></span>
+          <span>${statusLabel}</span>
+        </li>
+      `;
+    })
+    .join("");
 }
 
 function renderList(target, items, formatter) {
@@ -140,7 +198,7 @@ function renderSolicitudes(instances) {
   const list = el("list-solicitudes");
   if (!list) return;
   list.innerHTML = "";
-  const items = instances.filter((i) => ["vacaciones", "datos-personales", "reclamos"].includes(i.key));
+  const items = instances.filter((i) => ["vacaciones", "datos-personales", "reclamos", "sanciones", "medicina-examen", "medicina-licencia"].includes(i.key));
   if (!items.length) {
     const li = document.createElement("li");
     li.textContent = "Sin solicitudes";
@@ -333,6 +391,9 @@ async function seedWorkflows() {
     buildWorkflowDefinition("vacaciones", "Solicitud de Vacaciones"),
     buildWorkflowDefinition("datos-personales", "Actualizacion de Datos"),
     buildWorkflowDefinition("reclamos", "Gestion de Reclamos"),
+    buildWorkflowDefinition("sanciones", "Proceso de Sanciones"),
+    buildWorkflowDefinition("medicina-examen", "Solicitud Examen Medico"),
+    buildWorkflowDefinition("medicina-licencia", "Licencia Medica"),
   ];
 
   for (const def of defs) {
@@ -393,6 +454,8 @@ async function refreshAll() {
 
   fillSelect("select-instancia", instances, (i) => `${i.key} · ${i.estado}`);
   fillSelect("select-recibo-payroll", payrolls, (p) => `${p.periodo} · ${p.tipo}`);
+
+  await refreshHealthStatus();
 
   document.querySelectorAll(".btn-approve").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -540,6 +603,89 @@ el("form-wf-transition")?.addEventListener("submit", async (evt) => {
   }
 });
 
+// Resumen de vacaciones
+el("btn-vac-resumen")?.addEventListener("click", async () => {
+  try {
+    // Obtener instancias de vacaciones del empleado
+    const instances = await fetchJSON(getWfBase(), "/instances?key=vacaciones").catch(() => []);
+    const now = new Date();
+    const anioActual = now.getFullYear();
+    
+    let diasTomados = 0;
+    let diasPendientes = 0;
+    let diasDisponibles = 20; // Default anual
+    
+    instances.forEach(inst => {
+      if (inst.estado === "Aprobada" || inst.estado === "Finalizada") {
+        const dias = inst.datos?.dias || 0;
+        diasTomados += Number(dias);
+      } else if (inst.estado === "Pendiente" || inst.estado === "EnProceso") {
+        const dias = inst.datos?.dias || 0;
+        diasPendientes += Number(dias);
+      }
+    });
+    
+    diasDisponibles = Math.max(0, 20 - diasTomados);
+    
+    el("vac-dias-disponibles").textContent = diasDisponibles;
+    el("vac-dias-tomados").textContent = diasTomados;
+    el("vac-dias-pendientes").textContent = diasPendientes;
+  } catch (err) {
+    console.error("Error cargando resumen:", err);
+  }
+});
+
+// Simulador de vacaciones
+el("form-vacaciones-simulador")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  const fd = new FormData(evt.target);
+  const inicio = fd.get("inicio");
+  const fin = fd.get("fin");
+  
+  if (!inicio || !fin) {
+    el("simulador-resultado").textContent = "Por favor ingrese fechas de inicio y fin.";
+    return;
+  }
+  
+  const d1 = new Date(inicio);
+  const d2 = new Date(fin);
+  
+  if (d2 < d1) {
+    el("simulador-resultado").textContent = "La fecha fin debe ser mayor a la fecha inicio.";
+    return;
+  }
+  
+  // Calcular días hábiles (excluir sábados y domingos)
+  let diasHabiles = 0;
+  const current = new Date(d1);
+  while (current <= d2) {
+    const day = current.getDay();
+    if (day !== 0 && day !== 6) { // No sábado ni domingo
+      diasHabiles++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  
+  // Verificar saldo disponible
+  const instances = await fetchJSON(getWfBase(), "/instances?key=vacaciones").catch(() => []);
+  let diasTomados = 0;
+  instances.forEach(inst => {
+    if (inst.estado === "Aprobada" || inst.estado === "Finalizada") {
+      diasTomados += Number(inst.datos?.dias || 0);
+    }
+  });
+  
+  const diasDisponibles = 20 - diasTomados;
+  
+  if (diasHabiles > diasDisponibles) {
+    el("simulador-resultado").textContent = `⚠️ La solicitud requiere ${diasHabiles} días pero solo tiene ${diasDisponibles} disponibles.`;
+    el("simulador-resultado").className = "hint error";
+  } else {
+    el("simulador-resultado").textContent = `✓ La solicitud requiere ${diasHabiles} días. Tiene ${diasDisponibles} días disponibles.`;
+    el("simulador-resultado").className = "hint success";
+  }
+});
+
 el("form-vacaciones")?.addEventListener("submit", async (evt) => {
   evt.preventDefault();
   clearFormError("form-vacaciones");
@@ -603,6 +749,75 @@ el("form-reclamo")?.addEventListener("submit", async (evt) => {
     setView("tareas");
   } catch (err) {
     showFormError("form-reclamo", `Error enviando reclamo: ${err.message}`);
+  }
+});
+
+el("form-sancion")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  clearFormError("form-sancion");
+  const fd = new FormData(evt.target);
+  try {
+    await postJSON(getWfBase(), "/instances", {
+      key: "sanciones",
+      version: "1.0.0",
+      datos: {
+        legajoNumero: fd.get("legajoNumero"),
+        motivo: fd.get("motivo"),
+        detalle: fd.get("detalle"),
+      },
+    });
+    evt.target.reset();
+    await refreshAll();
+    setView("tareas");
+  } catch (err) {
+    showFormError("form-sancion", `Error enviando descargo: ${err.message}`);
+  }
+});
+
+el("form-medicina-examen")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  clearFormError("form-medicina-examen");
+  const fd = new FormData(evt.target);
+  try {
+    await postJSON(getWfBase(), "/instances", {
+      key: "medicina-examen",
+      version: "1.0.0",
+      datos: {
+        legajoNumero: fd.get("legajoNumero"),
+        tipo: fd.get("tipo"),
+        fecha: fd.get("fecha"),
+        notas: fd.get("notas") || "",
+      },
+    });
+    evt.target.reset();
+    await refreshAll();
+    setView("tareas");
+  } catch (err) {
+    showFormError("form-medicina-examen", `Error solicitando examen: ${err.message}`);
+  }
+});
+
+el("form-medicina-licencia")?.addEventListener("submit", async (evt) => {
+  evt.preventDefault();
+  clearFormError("form-medicina-licencia");
+  const fd = new FormData(evt.target);
+  try {
+    await postJSON(getWfBase(), "/instances", {
+      key: "medicina-licencia",
+      version: "1.0.0",
+      datos: {
+        legajoNumero: fd.get("legajoNumero"),
+        tipo: fd.get("tipo"),
+        fechaDesde: fd.get("fechaDesde"),
+        fechaHasta: fd.get("fechaHasta"),
+        diagnostico: fd.get("diagnostico") || "",
+      },
+    });
+    evt.target.reset();
+    await refreshAll();
+    setView("tareas");
+  } catch (err) {
+    showFormError("form-medicina-licencia", `Error solicitando licencia: ${err.message}`);
   }
 });
 
