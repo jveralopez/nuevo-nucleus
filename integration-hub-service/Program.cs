@@ -368,7 +368,65 @@ app.MapPost("/integraciones/triggers/{id:guid}/execute", async (Guid id, Execute
     return job is null ? Results.NotFound() : Results.Ok(job);
 }).RequireAuthorization(policy => policy.RequireRole("Admin"));
 
+// Global exception handler - detailed error responses
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        string errorMessage = "Ocurrió un error interno";
+        string errorDetail = "";
+        string errorCode = "INTERNAL_ERROR";
+        
+        if (exception != null)
+        {
+            var (error, detail, code) = GetErrorDetails(exception, "integración");
+            errorMessage = error;
+            errorDetail = detail;
+            errorCode = code;
+            app.Logger.LogError(exception, "Error no manejado en integration-hub-service");
+        }
+        
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = errorMessage,
+            detail = errorDetail,
+            code = errorCode,
+            timestamp = DateTime.UtcNow,
+            path = context.Request.Path
+        });
+    });
+});
+
 app.Run();
+
+static (string Error, string Detail, string Code) GetErrorDetails(Exception ex, string context)
+{
+    return ex switch
+    {
+        ArgumentException argEx => ("Parámetro inválido", $"{argEx.Message}", "INVALID_ARGUMENT"),
+        KeyNotFoundException _ => ("Recurso no encontrado", $"La {context} solicitada no existe.", "NOT_FOUND"),
+        TimeoutException _ => ("Tiempo de espera agotado", $"La {context} tardó demasiado. Intente más tarde.", "TIMEOUT"),
+        HttpRequestException httpEx => HandleHttpException(httpEx, context),
+        _ => ("Error interno", ex.Message.Length > 400 ? ex.Message.Substring(0, 400) + "..." : ex.Message, "INTERNAL_ERROR")
+    };
+}
+
+static (string Error, string Detail, string Code) HandleHttpException(HttpRequestException ex, string context)
+{
+    return ex.StatusCode switch
+    {
+        System.Net.HttpStatusCode.Unauthorized => ("No autorizado", "Credenciales de integración inválidas.", "UNAUTHORIZED"),
+        System.Net.HttpStatusCode.NotFound => ("Recurso no encontrado", $"El servicio externo de {context} no existe.", "NOT_FOUND"),
+        System.Net.HttpStatusCode.ServiceUnavailable => ("Servicio no disponible", $"El servicio de {context} no está disponible.", "SERVICE_UNAVAILABLE"),
+        _ => ("Error de comunicación", $"Error al comunicarse con el servicio de {context}.", "COMMUNICATION_ERROR")
+    };
+}
 
 static void EnsureTriggersSchema(IntegrationHubDbContext db)
 {

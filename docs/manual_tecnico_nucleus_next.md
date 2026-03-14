@@ -1,4 +1,5 @@
 # Manual Tecnico - Nucleus RH Next
+## Version 1.1 - Actualizacion de Manejo de Errores (2026-03-14)
 
 ## Indice General
 1. [Arquitectura General](#1-arquitectura-general)
@@ -1300,6 +1301,165 @@ sqlite> .schema tabla
 
 # Consultas
 sqlite> SELECT * FROM users LIMIT 5;
+```
+
+---
+
+## 13. Manejo de Errores
+
+### 13.1 Middleware Global de Excepciones
+
+Cada servicio tiene un middleware de excepciones que captura errores no manejados y retorna respuestas detalladas.
+
+**Ubicacion**: Al final de cada `Program.cs` antes de `app.Run()`
+
+```csharp
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        // Obtener detalles del error
+        var (error, detail, code) = GetErrorDetails(exception, context);
+        
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = errorMessage,
+            detail = errorDetail,
+            code = errorCode,
+            timestamp = DateTime.UtcNow,
+            path = context.Request.Path
+        });
+    });
+});
+```
+
+### 13.2 Funcion GetErrorDetails
+
+Cada servicio implementa una funcion `GetErrorDetails` que analiza la excepcion y retorna un mensaje claro:
+
+```csharp
+static (string Error, string Detail, string Code) GetErrorDetails(Exception ex, string context)
+{
+    var dbEx = ex as Microsoft.EntityFrameworkCore.DbUpdateException;
+    var innerMessage = dbEx?.InnerException?.Message ?? ex.Message;
+    
+    // Errores de base de datos
+    if (innerMessage.Contains("UNIQUE constraint") || innerMessage.Contains("duplicate"))
+        return ("Registro duplicado", 
+                $"Ya existe {context} con este valor. Verifique que no esté repetido.", 
+                "DUPLICATE_KEY");
+    
+    if (innerMessage.Contains("FOREIGN KEY"))
+        return ("Referencia inválida", 
+                $"No se puede modificar porque hace referencia a un registro que no existe.", 
+                "FOREIGN_KEY_VIOLATION");
+    
+    if (innerMessage.Contains("NOT NULL"))
+        return ("Campo requerido", 
+                $"Falta completar un campo obligatorio.", 
+                "REQUIRED_FIELD");
+    
+    // Errores standard
+    return ex switch
+    {
+        ArgumentException argEx => ("Parametro invalido", $"{argEx.Message}", "INVALID_ARGUMENT"),
+        KeyNotFoundException _ => ("Recurso no encontrado", $"El {context} solicitado no existe.", "NOT_FOUND"),
+        TimeoutException _ => ("Tiempo de espera agotado", "La operacion tardo demasiado.", "TIMEOUT"),
+        HttpRequestException httpEx => HandleHttpException(httpEx, context),
+        _ => ("Error interno", ex.Message.Length > 400 ? ex.Message.Substring(0, 400) + "..." : ex.Message, "INTERNAL_ERROR")
+    };
+}
+```
+
+### 13.3 Codigos de Error
+
+| Codigo HTTP | Error Code | Descripcion |
+|-------------|------------|-------------|
+| 400 | INVALID_ARGUMENT | Parametro invalido |
+| 400 | REQUIRED_FIELD | Campo requerido faltante |
+| 401 | UNAUTHORIZED | No autorizado / Token expirado |
+| 403 | FORBIDDEN | Acceso denegado |
+| 404 | NOT_FOUND | Recurso no encontrado |
+| 409 | DUPLICATE_KEY | Registro duplicado |
+| 409 | FOREIGN_KEY_VIOLATION | Referencia a registro inexistente |
+| 422 | INVALID_OPERATION | Operacion no valida |
+| 500 | INTERNAL_ERROR | Error interno del servidor |
+| 503 | SERVICE_UNAVAILABLE | Servicio externo no disponible |
+| 504 | TIMEOUT | Tiempo de espera agotado |
+
+### 13.4 Formato de Respuesta de Error
+
+```json
+{
+  "error": "Registro duplicado",
+  "detail": "Ya existe legajo con este numero de documento. Verifique que no este repetido.",
+  "code": "DUPLICATE_KEY",
+  "timestamp": "2026-03-14T10:30:00Z",
+  "path": "/api/rh/v1/personal/legajos"
+}
+```
+
+### 13.5 Errores por Servicio
+
+#### auth-service
+| Error | Detail | Causa |
+|-------|--------|-------|
+| DUPLICATE_KEY | "Ya existe usuario con este nombre" | Username duplicado |
+| INVALID_ARGUMENT | Parametro invalido | Credenciales mal formadas |
+
+#### organizacion-service
+| Error | Detail | Causa |
+|-------|--------|-------|
+| DUPLICATE_KEY | "Ya existe empresa con este codigo" | Codigo de empresa duplicado |
+| FOREIGN_KEY_VIOLATION | "Hace referencia a empresa inexistente" | Empresa padre no existe |
+
+#### personal-service
+| Error | Detail | Causa |
+|-------|--------|-------|
+| DUPLICATE_KEY | "Ya existe legajo con este documento" | Numero de documento duplicado |
+| REQUIRED_FIELD | "Falta completar documento o CUIL" | Campos obligatorios vacios |
+
+#### liquidacion-service
+| Error | Detail | Causa |
+|-------|--------|-------|
+| DUPLICATE_KEY | "Ya existe liquidacion con este periodo" | Periodo duplicado |
+| FOREIGN_KEY_VIOLATION | "Hace referencia a legajo inexistente" | Legajo no existe |
+
+#### tiempos-service
+| Error | Detail | Causa |
+|-------|--------|-------|
+| DUPLICATE_KEY | "Ya existe turno con este codigo" | Codigo de turno duplicado |
+
+#### nucleuswf-service
+| Error | Detail | Causa |
+|-------|--------|-------|
+| INVALID_OPERATION | "No se puede transicionar" | Estado invalido para transicion |
+
+#### integration-hub-service
+| Error | Detail | Causa |
+|-------|--------|-------|
+| SERVICE_UNAVAILABLE | "El servicio externo no esta disponible" | AFIP/Banco no responde |
+| UNAUTHORIZED | "Credenciales de integracion invalidas" | Token externo vencido |
+
+### 13.6 Logging de Errores
+
+Todos los errores no manejados se registran en el log del servicio:
+
+```csharp
+app.Logger.LogError(exception, "Error no manejado en {ServiceName}");
+```
+
+Para ver los logs:
+```bash
+docker compose logs auth-service
+docker compose logs personal-service
+# etc.
 ```
 
 ---

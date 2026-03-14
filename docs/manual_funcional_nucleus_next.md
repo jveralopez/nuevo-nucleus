@@ -1,4 +1,5 @@
 # Manual Funcional - Nucleus RH Next
+## Version 1.1 - Actualizacion de Manejo de Errores (2026-03-14)
 
 ## Indice
 1. [Introduccion](#1-introduccion)
@@ -684,6 +685,58 @@ Para pruebas, existe un script de seed data en `seed-data.js` que contiene datos
 curl -X POST http://localhost:5090/api/rh/v1/test/seed \
   -H "Authorization: Bearer [TOKEN]"
 ```
+
+---
+
+## 13. Manejo de Errores
+
+### 13.1 Respuestas de Error Detalladas
+
+El sistema ahora retorna mensajes de error claros que indican la causa raiz del problema:
+
+| Codigo | Tipo de Error | Ejemplo de Mensaje |
+|--------|--------------|-------------------|
+| 400 | Parametro invalido | "El campo 'fecha' debe tener formato YYYY-MM-DD" |
+| 401 | No autorizado | "Sesion expirada. Inicie sesion nuevamente" |
+| 403 | Acceso denegado | "No tiene permisos para crear empresas" |
+| 404 | No encontrado | "El legajo solicitado no existe" |
+| 409 | Duplicado | "Ya existe un legajo con este numero de documento" |
+| 422 | Operacion invalida | "No se puede cerrar la liquidacion porque tiene legajos pendientes" |
+| 500 | Error interno | "Error al procesar la solicitud" |
+| 503 | Servicio no disponible | "El servicio de liquidacion no esta disponible" |
+
+### 13.2 Detalle del Error
+
+Cada respuesta de error incluye:
+
+```json
+{
+  "error": "Registro duplicado",
+  "detail": "Ya existe legajo con este numero de documento. Verifique que no este repetido.",
+  "code": "DUPLICATE_KEY",
+  "timestamp": "2026-03-14T10:30:00Z",
+  "path": "/api/rh/v1/personal/legajos"
+}
+```
+
+### 13.3 Errores Comunes y Soluciones
+
+| Escenario | Error Mostrado | Solucion |
+|-----------|---------------|----------|
+| Crear empresa con CUIL repetido | "Ya existe empresa con este CUIL. Verifique que no este repetido." | Use un CUIL unico o edite el existente |
+| Crear legajo sin documento | "Falta completar un campo obligatorio (nombre, apellido, documento o CUIL)." | Complete todos los campos requeridos |
+| Modificar unidad inexistente | "La unidad solicitada no existe." | Verifique el ID o cree la unidad primero |
+| Liquidar sin legajos | "No se puede procesar porque hace referencia a un legajo que no existe." | Agregue legajos a la liquidacion primero |
+| Token expirado | "Sesion expirada o credenciales invalidas." | Inicie sesion nuevamente |
+| Sin permisos | "No tiene permisos para esta operacion." | Contacte al administrador |
+
+### 13.4 Errores de Integracion
+
+| Error | Causa | Solucion |
+|-------|-------|----------|
+| "Credenciales de integracion invalidas" | Token AFIP/Banco vencido | Actualice las credenciales en configuracion |
+| "El servicio externo no existe" | Sistema externo no disponible | Verifique la conectividad |
+| "El servicio no esta disponible" | Timeout o servicio caido | Reintente mas tarde |
 
 ---
 

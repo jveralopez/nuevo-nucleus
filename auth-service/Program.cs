@@ -263,4 +263,79 @@ using (var scope = app.Services.CreateScope())
     await auth.EnsureSeedAdminAsync();
 }
 
+// Global exception handler - detailed error responses
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        string errorMessage = "Ocurrió un error interno";
+        string errorDetail = "";
+        string errorCode = "INTERNAL_ERROR";
+        
+        if (exception != null)
+        {
+            var (error, detail, code) = GetErrorDetails(exception, "auth-service");
+            errorMessage = error;
+            errorDetail = detail;
+            errorCode = code;
+            
+            // Log the full error
+            app.Logger.LogError(exception, "Error no manejado en auth-service: {Error}", errorMessage);
+        }
+        
+        var errorResponse = new
+        {
+            error = errorMessage,
+            detail = errorDetail,
+            code = errorCode,
+            timestamp = DateTime.UtcNow,
+            path = context.Request.Path
+        };
+        
+        await context.Response.WriteAsJsonAsync(errorResponse);
+    });
+});
+
 app.Run();
+
+static (string Error, string Detail, string Code) GetErrorDetails(Exception ex, string context)
+{
+    return ex switch
+    {
+        ArgumentException argEx => ("Parámetro inválido", $"{argEx.Message}", "INVALID_ARGUMENT"),
+        KeyNotFoundException _ => ("Recurso no encontrado", $"El {context} solicitado no existe o fue eliminado.", "NOT_FOUND"),
+        InvalidOperationException opEx when opEx.Message.Contains("duplicate") || opEx.Message.Contains("exists") => 
+            ("Registro duplicado", $"Ya existe un usuario con este nombre de usuario.", "DUPLICATE_KEY"),
+        TimeoutException _ => ("Tiempo de espera agotado", "La operación tardó demasiado. Intente nuevamente.", "TIMEOUT"),
+        HttpRequestException httpEx => HandleHttpException(httpEx, context),
+        _ => ("Error interno", FormatDetailedError(ex), "INTERNAL_ERROR")
+    };
+}
+
+static string FormatDetailedError(Exception ex)
+{
+    var message = ex.Message;
+    if (ex.InnerException != null)
+    {
+        message += $" | Causa: {ex.InnerException.Message}";
+    }
+    return message.Length > 500 ? message.Substring(0, 500) + "..." : message;
+}
+
+static (string Error, string Detail, string Code) HandleHttpException(HttpRequestException ex, string context)
+{
+    return ex.StatusCode switch
+    {
+        System.Net.HttpStatusCode.Unauthorized => ("No autorizado", "Sesión expirada o credenciales inválidas.", "UNAUTHORIZED"),
+        System.Net.HttpStatusCode.Forbidden => ("Acceso denegado", $"No tiene permisos para esta operación.", "FORBIDDEN"),
+        System.Net.HttpStatusCode.NotFound => ("Recurso no encontrado", "El servicio externo no está disponible.", "NOT_FOUND"),
+        System.Net.HttpStatusCode.ServiceUnavailable => ("Servicio no disponible", $"El servicio no está disponible.", "SERVICE_UNAVAILABLE"),
+        _ => ("Error de comunicación", "No se pudo comunicar con el servicio.", "COMMUNICATION_ERROR")
+    };
+}

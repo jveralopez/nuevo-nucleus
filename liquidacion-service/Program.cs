@@ -237,9 +237,65 @@ app.Use(async (context, next) =>
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "ok",
-    service = "liquidacion-service",
-    version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "1.0.0"
+    timestamp = DateTime.UtcNow
 }));
+
+// Global exception handler - detailed error responses for liquidacion
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        string errorMessage = "Ocurrió un error interno";
+        string errorDetail = "";
+        string errorCode = "INTERNAL_ERROR";
+        
+        if (exception != null)
+        {
+            var (error, detail, code) = GetErrorDetails(exception, "liquidación");
+            errorMessage = error;
+            errorDetail = detail;
+            errorCode = code;
+            app.Logger.LogError(exception, "Error no manejado en liquidacion-service");
+        }
+        
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = errorMessage,
+            detail = errorDetail,
+            code = errorCode,
+            timestamp = DateTime.UtcNow,
+            path = context.Request.Path
+        });
+    });
+});
+
+static (string Error, string Detail, string Code) GetErrorDetails(Exception ex, string context)
+{
+    var dbEx = ex as Microsoft.EntityFrameworkCore.DbUpdateException;
+    var innerMessage = dbEx?.InnerException?.Message ?? ex.Message;
+    
+    if (innerMessage.Contains("UNIQUE constraint") || innerMessage.Contains("duplicate"))
+        return ("Registro duplicado", $"Ya existe {context} con este período. Verifique que no exista otra liquidación para el mismo mes.", "DUPLICATE_KEY");
+    if (innerMessage.Contains("FOREIGN KEY"))
+        return ("Referencia inválida", $"No se puede procesar la {context} porque hace referencia a un legajo que no existe.", "FOREIGN_KEY_VIOLATION");
+    if (innerMessage.Contains("NOT NULL"))
+        return ("Campo requerido", $"Falta completar un campo obligatorio para la {context}.", "REQUIRED_FIELD");
+    
+    return ex switch
+    {
+        ArgumentException argEx => ("Parámetro inválido", $"{argEx.Message}", "INVALID_ARGUMENT"),
+        KeyNotFoundException _ => ("Recurso no encontrado", $"La {context} solicitada no existe.", "NOT_FOUND"),
+        TimeoutException _ => ("Tiempo de espera agotado", "El procesamiento tardó demasiado. Intente con menos legajos.", "TIMEOUT"),
+        InvalidOperationException opEx when opEx.Message.Contains("cannot") => ("Operación no válida", opEx.Message, "INVALID_OPERATION"),
+        _ => ("Error interno", ex.Message.Length > 400 ? ex.Message.Substring(0, 400) + "..." : ex.Message, "INTERNAL_ERROR")
+    };
+}
 
 app.MapHealthChecks("/healthz", new HealthCheckOptions
 {

@@ -274,4 +274,59 @@ app.MapPost("/instances/{id:guid}/transitions", async (HttpContext context, Guid
     return instance is null ? Results.NotFound() : Results.Ok(instance);
 }).RequireAuthorization(policy => policy.RequireRole("Admin"));
 
+// Global exception handler - detailed error responses
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        string errorMessage = "Ocurrió un error interno";
+        string errorDetail = "";
+        string errorCode = "INTERNAL_ERROR";
+        
+        if (exception != null)
+        {
+            var (error, detail, code) = GetErrorDetails(exception, "workflow");
+            errorMessage = error;
+            errorDetail = detail;
+            errorCode = code;
+            app.Logger.LogError(exception, "Error no manejado en nucleuswf-service");
+        }
+        
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = errorMessage,
+            detail = errorDetail,
+            code = errorCode,
+            timestamp = DateTime.UtcNow,
+            path = context.Request.Path
+        });
+    });
+});
+
 app.Run();
+
+static (string Error, string Detail, string Code) GetErrorDetails(Exception ex, string context)
+{
+    var dbEx = ex as Microsoft.EntityFrameworkCore.DbUpdateException;
+    var innerMessage = dbEx?.InnerException?.Message ?? ex.Message;
+    
+    if (innerMessage.Contains("UNIQUE constraint") || innerMessage.Contains("duplicate"))
+        return ("Registro duplicado", $"Ya existe {context} con este nombre. Verifique que no esté repetido.", "DUPLICATE_KEY");
+    if (innerMessage.Contains("FOREIGN KEY"))
+        return ("Referencia inválida", $"No se puede ejecutar el {context} porque hace referencia a una definición que no existe.", "FOREIGN_KEY_VIOLATION");
+    
+    return ex switch
+    {
+        ArgumentException argEx => ("Parámetro inválido", $"{argEx.Message}", "INVALID_ARGUMENT"),
+        KeyNotFoundException _ => ("Recurso no encontrado", $"El {context} solicitado no existe.", "NOT_FOUND"),
+        InvalidOperationException opEx when opEx.Message.Contains("cannot") => ("Operación no válida", opEx.Message, "INVALID_OPERATION"),
+        TimeoutException _ => ("Tiempo de espera agotado", "La operación tardó demasiado.", "TIMEOUT"),
+        _ => ("Error interno", ex.Message.Length > 400 ? ex.Message.Substring(0, 400) + "..." : ex.Message, "INTERNAL_ERROR")
+    };
+}

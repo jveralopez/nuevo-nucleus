@@ -353,7 +353,64 @@ app.MapDelete("/legajos/{id:guid}", async (Guid id, PersonalServiceService servi
     return legajo is null ? Results.NotFound() : Results.Ok(legajo);
 }).RequireAuthorization(policy => policy.RequireRole("Admin"));
 
+// Global exception handler - detailed error responses
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        string errorMessage = "Ocurrió un error interno";
+        string errorDetail = "";
+        string errorCode = "INTERNAL_ERROR";
+        
+        if (exception != null)
+        {
+            var (error, detail, code) = GetErrorDetails(exception, "legajo");
+            errorMessage = error;
+            errorDetail = detail;
+            errorCode = code;
+            app.Logger.LogError(exception, "Error no manejado en personal-service");
+        }
+        
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = errorMessage,
+            detail = errorDetail,
+            code = errorCode,
+            timestamp = DateTime.UtcNow,
+            path = context.Request.Path
+        });
+    });
+});
+
 app.Run();
+
+static (string Error, string Detail, string Code) GetErrorDetails(Exception ex, string context)
+{
+    var dbEx = ex as Microsoft.EntityFrameworkCore.DbUpdateException;
+    var innerMessage = dbEx?.InnerException?.Message ?? ex.Message;
+    
+    if (innerMessage.Contains("UNIQUE constraint") || innerMessage.Contains("duplicate"))
+        return ("Registro duplicado", $"Ya existe {context} con este número de documento o CUIL. Verifique que no esté repetido.", "DUPLICATE_KEY");
+    if (innerMessage.Contains("FOREIGN KEY"))
+        return ("Referencia inválida", $"No se puede modificar el {context} porque hace referencia a una empresa o unidad que no existe.", "FOREIGN_KEY_VIOLATION");
+    if (innerMessage.Contains("NOT NULL"))
+        return ("Campo requerido", $"Falta completar un campo obligatorio (nombre, apellido, documento o CUIL).", "REQUIRED_FIELD");
+    
+    return ex switch
+    {
+        ArgumentException argEx => ("Parámetro inválido", $"{argEx.Message}", "INVALID_ARGUMENT"),
+        KeyNotFoundException _ => ("Recurso no encontrado", $"El {context} solicitado no existe.", "NOT_FOUND"),
+        InvalidOperationException opEx when opEx.Message.Contains("duplicate") => ("Registro duplicado", $"Ya existe {context} con estos datos.", "DUPLICATE_KEY"),
+        TimeoutException _ => ("Tiempo de espera agotado", "La operación tardó demasiado.", "TIMEOUT"),
+        _ => ("Error interno", ex.Message.Length > 400 ? ex.Message.Substring(0, 400) + "..." : ex.Message, "INTERNAL_ERROR")
+    };
+}
 
 static void EnsurePersonalSchema(PersonalDbContext db)
 {

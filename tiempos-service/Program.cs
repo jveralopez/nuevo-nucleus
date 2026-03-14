@@ -330,6 +330,60 @@ app.MapGet("/ausencias/resumen", async (Guid? legajoId, string? legajoNumero, Da
     Results.Ok(await service.GetAusenciasResumenAsync(legajoId, legajoNumero, desde, hasta, tipo)))
     .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
+// Global exception handler - detailed error responses
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        string errorMessage = "Ocurrió un error interno";
+        string errorDetail = "";
+        string errorCode = "INTERNAL_ERROR";
+        
+        if (exception != null)
+        {
+            var (error, detail, code) = GetErrorDetails(exception, "control de tiempos");
+            errorMessage = error;
+            errorDetail = detail;
+            errorCode = code;
+            app.Logger.LogError(exception, "Error no manejado en tiempos-service");
+        }
+        
+        await context.Response.WriteAsJsonAsync(new
+        {
+            error = errorMessage,
+            detail = errorDetail,
+            code = errorCode,
+            timestamp = DateTime.UtcNow,
+            path = context.Request.Path
+        });
+    });
+});
+
 app.Run();
+
+static (string Error, string Detail, string Code) GetErrorDetails(Exception ex, string context)
+{
+    var dbEx = ex as Microsoft.EntityFrameworkCore.DbUpdateException;
+    var innerMessage = dbEx?.InnerException?.Message ?? ex.Message;
+    
+    if (innerMessage.Contains("UNIQUE constraint") || innerMessage.Contains("duplicate"))
+        return ("Registro duplicado", $"Ya existe {context} con este código. Verifique que no esté repetido.", "DUPLICATE_KEY");
+    if (innerMessage.Contains("FOREIGN KEY"))
+        return ("Referencia inválida", $"No se puede procesar porque hace referencia a un legajo que no existe.", "FOREIGN_KEY_VIOLATION");
+    
+    return ex switch
+    {
+        ArgumentException argEx => ("Parámetro inválido", $"{argEx.Message}", "INVALID_ARGUMENT"),
+        KeyNotFoundException _ => ("Recurso no encontrado", $"El {context} solicitado no existe.", "NOT_FOUND"),
+        TimeoutException _ => ("Tiempo de espera agotado", "La operación tardó demasiado.", "TIMEOUT"),
+        _ => ("Error interno", ex.Message.Length > 400 ? ex.Message.Substring(0, 400) + "..." : ex.Message, "INTERNAL_ERROR")
+    };
+}
 
 public partial class Program { }
