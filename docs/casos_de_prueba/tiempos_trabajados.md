@@ -44,9 +44,10 @@
   1. Ejecutar `POST /planillas/{id}/cerrar`.
 - **Resultado esperado**: Planilla cerrada.
 
-## CT-TT-07 Exportar planilla (fase siguiente)
+## CT-TT-07 Exportar planilla
 - **Relacion**: CU-TT-07
 - **Precondiciones**: Planilla cerrada.
 - **Pasos**:
-  1. Pendiente de implementar.
-- **Resultado esperado**: Exporte generado.
+  1. Ejecutar `POST /api/rh/v1/integraciones/jobs` con payload de exporte.
+  2. Verificar `GET /api/rh/v1/integraciones/jobs/{id}` - estado "Completado".
+- **Resultado esperado**: Job completado, archivo generado.

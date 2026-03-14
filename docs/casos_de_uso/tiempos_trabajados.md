@@ -50,10 +50,17 @@
   1. El actor ejecuta `POST /planillas/{id}/cerrar`.
 - **Postcondicion**: Planilla cerrada.
 
-## CU-TT-07 Exportar horas a Liquidacion (fase siguiente)
+## CU-TT-07 Exportar horas a Liquidacion
 - **Actor**: RRHH Admin
 - **Objetivo**: Enviar planilla a Liquidacion.
 - **Precondiciones**: Planilla cerrada.
 - **Flujo principal**:
-  1. Pendiente de implementar.
-- **Postcondicion**: Exporte disponible.
+  1. El actor ejecuta `POST /integraciones/jobs` con template "exporte-horas-liquidacion".
+  2. El sistema crea un job de integracion.
+  3. El sistema procesa la planilla y genera archivo para liquidacion.
+  4. El sistema Notifica a liquidacion-service via evento.
+- **Postcondicion**: Job de exporte creado y ejecutandose.
+- **Endpoints relacionados**:
+  - `POST /api/rh/v1/integraciones/jobs` - Crear job
+  - `GET /api/rh/v1/integraciones/jobs/{id}` - Ver estado
+  - `POST /api/rh/v1/integraciones/jobs/{id}/retry` - Reintentar

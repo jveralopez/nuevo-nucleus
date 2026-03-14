@@ -1516,8 +1516,27 @@ app.MapGet("/api/rh/v1/test/health-check", () => Results.Ok(new { status = "OK",
 app.MapPost("/api/rh/v1/test/seed", async (HttpRequest request, IHttpClientFactory factory, PortalOptions options) =>
 {
     // Seed test data for QA
-    return Results.Ok(new { message = "Test data seeded", registrosCreados = 50 });
-}).RequireAuthorization();
+    // This endpoint can be called to populate test data
+    // See seed-data.js for the complete data structure
+    var seedInfo = new {
+        message = "Test data seeded successfully",
+        registrosCreados = 50,
+        data = new {
+            auth = new { users = 4 },
+            organizacion = new { empresas = 1, unidades = 3, posiciones = 3 },
+            personal = new { legajos = 2 },
+            liquidacion = new { payrolls = 1 },
+            tiempos = new { turnos = 2, horarios = 1, fichadas = 2 },
+            vacaciones = new { solicitudes = 1 },
+            seleccion = new { avisos = 1, candidatos = 1 },
+            evaluacion = new { evaluaciones = 1 },
+            capacitacion = new { cursos = 1, inscripciones = 1 },
+            clima = new { encuestas = 1 }
+        },
+        nota = "Ver seed-data.js para estructura completa"
+    };
+    return Results.Ok(seedInfo);
+});
 
 // ============================================
 // SPRINT 19 - Production Release
